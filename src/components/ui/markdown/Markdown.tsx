@@ -195,7 +195,7 @@ export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
                   TriggerComponent={footnotes}
                   type="popover"
                   wrapperClassName="footnotes_text"
-                  popoverWrapperClassNames="z-[50] relative"
+                  popoverWrapperClassNames="w-50"
                 >
                   <div
                     className="footnotes"
