@@ -196,13 +196,16 @@ export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
                   type="popover"
                   wrapperClassName="footnotes_text"
                 >
-                  <div
-                    className="footnotes"
-                    dangerouslySetInnerHTML={{
-                      __html: footnote?.footnote?.substring(1),
-                    }}
-                    style={{ width: '80%' }}
-                  />
+                  <div className="space-y-2 leading-relaxed">
+                    <p className="flex items-center space-x-1 opacity-80">
+                      <span
+                        className="font-medium"
+                        dangerouslySetInnerHTML={{
+                          __html: footnote?.footnote?.substring(1),
+                        }}
+                      />
+                    </p>
+                  </div>
                 </FloatPopover>
               )
             },
