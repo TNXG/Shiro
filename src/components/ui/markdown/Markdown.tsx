@@ -195,11 +195,12 @@ export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
                   TriggerComponent={footnotes}
                   type="popover"
                   wrapperClassName="footnotes_text"
+                  popoverWrapperClassNames="z-[50] relative"
                 >
                   <div
                     className="footnotes"
                     dangerouslySetInnerHTML={{
-                      __html: footnote?.footnote,
+                      __html: footnote?.footnote?.substring(1),
                     }}
                   />
                 </FloatPopover>
