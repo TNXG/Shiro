@@ -11,7 +11,7 @@ export const renderCodeHighlighter = async (
     langs: [lang as any],
     theme, // 传递转换后的主题参数
   }).then((highlighter) => {
-    return highlighter.codeToHtml(code, {
+    return highlighter.codeToHtml(code.trim(), {
       lang,
     })
   })
