@@ -5,15 +5,15 @@ import type { NextRequest } from 'next/server'
 
 import { apiClient } from '~/lib/request'
 
-const fontNormal = fetch(
-  'https://github.com/IKKI2000/harmonyos-fonts/raw/main/fonts/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf',
-).then((res) => res.arrayBuffer())
+// const fontNormal = fetch(
+//   'https://github.com/IKKI2000/harmonyos-fonts/raw/main/fonts/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf',
+// ).then((res) => res.arrayBuffer())
 // export const runtime = 'edge'
 
 export const revalidate = 60 * 60 * 24 // 24 hours
 export const GET = async (req: NextRequest) => {
   try {
-    const fontData = await fontNormal
+    // const fontData = await fontNormal
 
     const { searchParams } = req.nextUrl
 
@@ -103,8 +103,8 @@ export const GET = async (req: NextRequest) => {
             width: '100%',
 
             background: `linear-gradient(37deg, ${bgAccent} 27.82%, ${bgAccentLight} 79.68%, ${bgAccentUltraLight} 100%)`,
-
-            fontFamily: 'HarmonyOS_Regular',
+            // fontFamily: 'HarmonyOS_Regular',
+            fontFamily: 'Inter, "Material Icons"',
 
             padding: '5rem',
             alignItems: 'flex-end',
@@ -177,14 +177,15 @@ export const GET = async (req: NextRequest) => {
       {
         width: 1200,
         height: 600,
-        fonts: [
-          {
-            name: 'LXGW WenKai Screen R',
-            data: fontData,
-            weight: 400,
-            style: 'normal',
-          },
-        ],
+        emoji: 'twemoji',
+        // fonts: [
+        //   {
+        //     name: 'LXGW WenKai Screen R',
+        //     // data: fontData,
+        //     weight: 400,
+        //     style: 'normal',
+        //   },
+        // ],
       },
     )
   } catch (e: any) {

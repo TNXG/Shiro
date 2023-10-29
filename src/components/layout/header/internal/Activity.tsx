@@ -53,6 +53,7 @@ const appDescription = {
   SimplyPiano: '练琴',
 
   'Microsoft Edge': '看b站',
+  'Microsoft Edge': '看b站',
   umamusume: '启动！',
   WindowsTerminal: 'del /f /s /q c:/ (不是',
   卡拉彼丘: '启动！',
@@ -136,13 +137,6 @@ const appLabels: { [app: string]: string } = {
 
   cmusic: 'cmusic',
 
-  Photoshop: 'photoshop',
-  QQScreenshot: 'qq',
-  chrome: 'chrome',
-  cloudmusic: 'netease',
-  msedge: 'edge',
-  umamusume: 'umamusume',
-
   'Microsoft Edge': 'edge',
   firefox: 'firefox',
   idea64: 'idea',
@@ -216,7 +210,7 @@ export const Activity = memo(() => {
       {!!media && (
         <m.div className="absolute bottom-0 left-0 top-0 z-[10] flex items-center lg:left-[-30px]">
           <div className="absolute inset-0 z-[-1] flex center">
-            <div className="h-6 w-6 animate-ping rounded-md ring-2 ring-uk-red-dark" />
+            <div className="h-6 w-6 rounded-md ring-2 ring-red-500 dark:ring-red-400" />
           </div>
           <FloatPopover
             TriggerComponent={TriggerComponent}
