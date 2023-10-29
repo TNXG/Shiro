@@ -53,7 +53,6 @@ const appDescription = {
   SimplyPiano: '练琴',
 
   'Microsoft Edge': '看b站',
-  'Microsoft Edge': '看b站',
   umamusume: '启动！',
   WindowsTerminal: 'del /f /s /q c:/ (不是',
   卡拉彼丘: '启动！',
