@@ -4,6 +4,7 @@ import { AckRead } from '~/components/common/AckRead'
 import { ClientOnly } from '~/components/common/ClientOnly'
 import {
   PostActionAside,
+  PostBottomBarAction,
   PostCopyright,
   PostOutdate,
   PostRelated,
@@ -12,7 +13,6 @@ import { ArticleRightAside } from '~/components/widgets/shared/ArticleRightAside
 import { GoToAdminEditingButton } from '~/components/widgets/shared/GoToAdminEditingButton'
 import { ReadIndicatorForMobile } from '~/components/widgets/shared/ReadIndicator'
 import { SummarySwitcher } from '~/components/widgets/shared/SummarySwitcher'
-import { SubscribeBell } from '~/components/widgets/subscribe'
 import { XLogInfoForPost } from '~/components/widgets/xlog'
 import { LayoutRightSidePortal } from '~/providers/shared/LayoutRightSideProvider'
 import { WrappedElementProvider } from '~/providers/shared/WrappedElementProvider'
@@ -66,8 +66,9 @@ const PostPage = (props: PostModel) => {
       </article>
       <ClientOnly>
         <PostCopyright />
-        <SubscribeBell defaultType="post_c" />
+        {/* <SubscribeBell defaultType="post_c" /> */}
         <XLogInfoForPost />
+        <PostBottomBarAction />
       </ClientOnly>
     </div>
   )

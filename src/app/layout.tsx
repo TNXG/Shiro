@@ -23,6 +23,7 @@ import { queries } from '~/queries/definition'
 import { Providers } from '../providers/root'
 import { Analyze } from './analyze'
 import { init } from './init'
+import { InitInClient } from './InitInClient'
 
 const { version } = PKG
 init()
@@ -185,7 +186,9 @@ export default async function RootLayout(props: Props) {
               appConfig={themeConfig.config}
             />
 
-            <Root>{children}</Root>
+            <div data-theme>
+              <Root>{children}</Root>
+            </div>
 
             <TocAutoScroll />
             <SearchPanelWithHotKey />
@@ -193,6 +196,7 @@ export default async function RootLayout(props: Props) {
           </Providers>
           <ToastContainer />
           <ScrollTop />
+          <InitInClient />
         </body>
       </html>
       <Analytics />

@@ -2,6 +2,7 @@
 
 import { m, useAnimationControls, useForceUpdate } from 'framer-motion'
 
+import { useIsMobile } from '~/atoms'
 import { MotionButtonBase } from '~/components/ui/button'
 import { NumberSmoothTransition } from '~/components/ui/number-transition/NumberSmoothTransition'
 import { useIsClient } from '~/hooks/common/use-is-client'
@@ -18,17 +19,37 @@ import {
 } from '~/providers/note/CurrentNoteDataProvider'
 import { useCurrentNoteId } from '~/providers/note/CurrentNoteIdProvider'
 import { useModalStack } from '~/providers/root/modal-stack-provider'
+import { useIsEoFWrappedElement } from '~/providers/shared/WrappedElementProvider'
 
-import { ActionAsideContainer } from '../shared/ActionAsideContainer'
+import {
+  ActionAsideContainer,
+  ActionAsideIcon,
+  asideButtonStyles,
+} from '../shared/ActionAsideContainer'
 import { AsideCommentButton } from '../shared/AsideCommentButton'
 import { AsideDonateButton } from '../shared/AsideDonateButton'
 import { ShareModal } from '../shared/ShareModal'
+import { usePresentSubscribeModal } from '../subscribe'
+
+export const NoteBottomBarAction: Component = () => {
+  const isMobile = useIsMobile()
+  if (!isMobile) return null
+  return (
+    <div className="mb-8 flex items-center justify-center space-x-8">
+      <LikeButton />
+      <ShareButton />
+      <SubscribeButton />
+      <AsideDonateButton />
+    </div>
+  )
+}
 
 export const NoteActionAside: Component = ({ className }) => {
   return (
     <ActionAsideContainer className={className}>
       <LikeButton />
       <ShareButton />
+      <SubscribeButton />
       <NoteAsideCommentButton />
       <AsideDonateButton />
     </ActionAsideContainer>
@@ -44,7 +65,10 @@ const NoteAsideCommentButton = () => {
         id: data?.id,
       }
     }) || {}
+
+  const isEoF = useIsEoFWrappedElement()
   if (!id) return null
+  if (isEoF) return null
   return <AsideCommentButton refId={id} title={title!} />
 }
 
@@ -104,7 +128,8 @@ const LikeButton = () => {
     >
       <m.i
         className={clsxm(
-          'text-[24px] opacity-80 duration-200 hover:text-uk-red-light hover:opacity-100',
+          'duration-200 hover:text-uk-red-light',
+          asideButtonStyles.base,
           !isLiked && 'icon-[mingcute--heart-line]',
           isLiked && 'icon-[mingcute--heart-fill] text-uk-red-light',
         )}
@@ -123,6 +148,15 @@ const LikeButton = () => {
           <NumberSmoothTransition>{likeCount}</NumberSmoothTransition>
         </span>
       )}
+    </MotionButtonBase>
+  )
+}
+
+const SubscribeButton = () => {
+  const { present } = usePresentSubscribeModal(['note_c'])
+  return (
+    <MotionButtonBase className="flex flex-col space-y-2" onClick={present}>
+      <ActionAsideIcon className="icon-[material-symbols--notifications-active-outline] hover:text-accent" />
     </MotionButtonBase>
   )
 }
@@ -168,7 +202,7 @@ const ShareButton = () => {
         }
       }}
     >
-      <i className="icon-[mingcute--share-forward-line] text-[24px] opacity-80 duration-200 hover:text-uk-cyan-light hover:opacity-100" />
+      <ActionAsideIcon className="icon-[mingcute--share-forward-line] hover:text-uk-cyan-light" />
     </MotionButtonBase>
   )
 }

@@ -16,12 +16,14 @@ import { usePathname } from 'next/navigation'
 import type { Target, Transition } from 'framer-motion'
 import type { FC, PropsWithChildren, SyntheticEvent } from 'react'
 
+import { useIsMobile } from '~/atoms'
 import { CloseIcon } from '~/components/icons/close'
 import { DialogOverlay } from '~/components/ui/dialog/DialogOverlay'
 import { Divider } from '~/components/ui/divider'
+import { PresentSheet, sheetStackAtom } from '~/components/ui/sheet'
 import { microReboundPreset } from '~/constants/spring'
-import { useEventCallback } from '~/hooks/common/use-event-callback'
 import { useIsClient } from '~/hooks/common/use-is-client'
+import { useIsUnMounted } from '~/hooks/common/use-is-unmounted'
 import { stopPropagation } from '~/lib/dom'
 import { clsxm } from '~/lib/helper'
 import { jotaiStore } from '~/lib/store'
@@ -55,23 +57,26 @@ export const useModalStack = () => {
   const id = useId()
   const currentCount = useRef(0)
   return {
-    present(props: ModalProps & { id?: string }) {
-      const modalId = `${id}-${currentCount.current++}`
-      jotaiStore.set(modalStackAtom, (p) => {
-        const modalProps = {
-          ...props,
-          id: props.id ?? modalId,
-        }
-        modalIdToPropsMap[modalProps.id] = modalProps
-        return p.concat(modalProps)
-      })
-
-      return () => {
+    present: useCallback(
+      (props: ModalProps & { id?: string }) => {
+        const modalId = `${id}-${currentCount.current++}`
         jotaiStore.set(modalStackAtom, (p) => {
-          return p.filter((item) => item.id !== modalId)
+          const modalProps = {
+            ...props,
+            id: props.id ?? modalId,
+          }
+          modalIdToPropsMap[modalProps.id] = modalProps
+          return p.concat(modalProps)
         })
-      }
-    },
+
+        return () => {
+          jotaiStore.set(modalStackAtom, (p) => {
+            return p.filter((item) => item.id !== modalId)
+          })
+        }
+      },
+      [id],
+    ),
 
     ...actions,
   }
@@ -136,11 +141,11 @@ const Modal: Component<{
   index: number
 }> = memo(function Modal({ item, index }) {
   const setStack = useSetAtom(modalStackAtom)
-  const close = useEventCallback(() => {
+  const close = useCallback(() => {
     setStack((p) => {
       return p.filter((modal) => modal.id !== item.id)
     })
-  })
+  }, [item.id, setStack])
 
   const onClose = useCallback(
     (open: boolean): void => {
@@ -170,6 +175,8 @@ const Modal: Component<{
     },
     [close],
   )
+
+  const isUnmounted = useIsUnMounted()
   const noticeModal = useCallback(() => {
     animateController
       .start({
@@ -179,6 +186,7 @@ const Modal: Component<{
         },
       })
       .then(() => {
+        if (isUnmounted.current) return
         animateController.start({
           scale: 1,
         })
@@ -187,6 +195,21 @@ const Modal: Component<{
 
   const ModalProps: ModalContentPropsInternal = {
     dismiss: close,
+  }
+
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    const drawerLength = jotaiStore.get(sheetStackAtom).length
+
+    return (
+      <PresentSheet
+        open
+        zIndex={1000 + drawerLength}
+        onOpenChange={onClose}
+        content={createElement(content, ModalProps)}
+      />
+    )
   }
 
   if (CustomModalComponent) {
