@@ -28,7 +28,7 @@ export const RelativeTime: FC<{
     ) {
       timer = clearInterval(timer)
       // @ts-expect-error
-      setRelative(parseDate(props.date, 'YY 年 M 月 D 日'))
+      setRelative(parseDate(props.date, 'YYYY 年 M 月 D 日'))
     }
     return () => {
       timer = clearInterval(timer)
