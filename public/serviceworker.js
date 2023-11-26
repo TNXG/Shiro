@@ -1,5 +1,5 @@
 // 添加监听器 / AddEventListener
-const ServiceWoker_Version = '23.10.28-rc.1'
+const ServiceWoker_Version = '23.11.26-rc.1'
 const CACHE_NAME = 'TNXG_BLOG_CACHE'
 let cachelist = []
 self.addEventListener('install', async function (installEvent) {
@@ -12,7 +12,22 @@ self.addEventListener('install', async function (installEvent) {
   )
 })
 self.addEventListener('message', (event) => {
-  console.log(event.data)
+  if (event.data != 'tnxg.top' || event.data != 'localhost') {
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage('sw-update')
+        })
+      }
+      ),
+    )
+    return new Response("Access denied. Only 'tnxg.top' is allowed.", {
+      status: 403,
+      headers: { 'Content-Type': 'text/plain' },
+    })
+  } else {
+    console.log('[TNXG_SW]欢迎访问：' + event.data)
+  }
 });
 self.addEventListener('fetch', async (event) => {
   event.respondWith(handle(event.request))
@@ -113,18 +128,6 @@ const handle = async (req) => {
       }),
     )
   }
-  // 检查是否是 tnxg.top 域名，否则返回警告
-  self.addEventListener('message', (event) => {
-    const currentURL = event.data
-    console.log('[TNXG_SW]检测到消息：' + currentURL)
-    if (currentURL !== 'tnxg.top') {
-      return new Response("Access denied. Only 'tnxg.top' is allowed.", {
-        status: 403,
-        headers: { 'Content-Type': 'text/plain' },
-      })
-    }
-  })
-
   // 主站api函数
   // 拦截所有路径为域名/sw-req/的请求
   if (req.url.includes('/sw-req/')) {
@@ -186,10 +189,7 @@ const handle = async (req) => {
       ) {
         let webpReq = new Request(req.url + '?fmt=webp', req)
         console.log(
-          '[TNXG_SW]检测到TNXG桶的图片请求[方式1]，转换WebP：' +
-            req.url +
-            '?fmt=webp',
-        )
+          '[TNXG_SW]检测到TNXG桶的图片请求[方式1]，转换WebP：' + req.url + '?fmt=webp')
         return fetch(webpReq)
       }
     }
@@ -209,11 +209,7 @@ const handle = async (req) => {
         imgurl = imgurl.split('&')[0]
         if (req.headers.get('accept').includes('webp')) {
           let webpReq = new Request(imgurl + '?fmt=webp', req)
-          console.log(
-            '[TNXG_SW]检测到TNXG桶的图片请求[方式2]，转换WebP：' +
-              imgurl +
-              '?fmt=webp',
-          )
+          console.log('[TNXG_SW]检测到TNXG桶的图片请求[方式2]，转换WebP：' + imgurl + '?fmt=webp')
           return fetch(webpReq)
         } else {
           return fetch(req)
