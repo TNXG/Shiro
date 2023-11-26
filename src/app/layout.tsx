@@ -146,6 +146,7 @@ export default async function RootLayout(props: Props) {
           <script
             dangerouslySetInnerHTML={{
               __html: `
+              navigator.serviceWorker.controller.postMessage(window.location.hostname)
                 if (!!navigator.serviceWorker) {
                   navigator.serviceWorker.register('/sw.js?t=' + new Date().getTime())
                     .then(async (registration) => {

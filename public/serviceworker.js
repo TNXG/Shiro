@@ -11,6 +11,9 @@ self.addEventListener('install', async function (installEvent) {
     }),
   )
 })
+self.addEventListener('message', (event) => {
+  console.log(event.data)
+});
 self.addEventListener('fetch', async (event) => {
   event.respondWith(handle(event.request))
 })
