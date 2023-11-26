@@ -146,27 +146,38 @@ export default async function RootLayout(props: Props) {
           <script
             dangerouslySetInnerHTML={{
               __html: `
-              if (!!navigator.serviceWorker) {
-                navigator.serviceWorker.register('/sw.js?t=' + new Date().getTime())
-                  .then(async (registration) => {
-                    if (localStorage.getItem('sw_installed') !== 'true') {
-                      localStorage.setItem('sw_installed', 'true');
-                      console.log('[TNXG_SW] 安装成功，正在重载页面！');
-                      fetch(window.location.href)
-                        .then(res => res.text())
-                        .then(text => {
-                          document.open();
-                          document.write(text);
-                          document.close();
-                        });
-                    } else {
-                      navigator.serviceWorker.controller.postMessage(window.location.hostname)
-                    }
-                  }).catch(err => {
-                    console.error('[TNXG_SW] 安装失败，原因： ' + err.message);
-                  });
+              if (window.location.host.startsWith("tnxg.top") || window.location.host.startsWith("localhost")) {
+                if (!!navigator.serviceWorker) {
+                  navigator.serviceWorker.register('/sw.js?t=' + new Date().getTime())
+                    .then(async (registration) => {
+                      if (localStorage.getItem('sw_installed') !== 'true') {
+                        localStorage.setItem('sw_installed', 'true');
+                        console.log('[TNXG_SW] 安装成功，正在重载页面！');
+                        fetch(window.location.href)
+                          .then(res => res.text())
+                          .then(text => {
+                            document.open();
+                            document.write(text);
+                            document.close();
+                          });
+                      } else {
+                        navigator.serviceWorker.controller.postMessage(window.location.hostname)
+                      }
+                    }).catch(err => {
+                      console.error('[TNXG_SW] 安装失败，原因： ' + err.message);
+                    });
+                } else {
+                  console.error('[TNXG_SW] 安装失败，原因： 浏览器不支持service worker');
+                }
               } else {
-                console.error('[TNXG_SW] 安装失败，原因： 浏览器不支持service worker');
+                window.stop();
+                fetch('https://assets.tnxg.whitenuo.cn/data/blog_error.html')
+                  .then(res => res.text())
+                  .then(text => {
+                    document.open()
+                    document.write(text);
+                    document.close();
+                  });
               }
             `,
             }}
@@ -177,6 +188,10 @@ export default async function RootLayout(props: Props) {
           <link
             rel="stylesheet"
             href="https://assets.tnxg.whitenuo.cn/fonts/HarmonyOS_Regular.css"
+          />
+          <link
+            rel="canonical"
+            href="https://tnxg.top/"
           />
         </head>
         <body

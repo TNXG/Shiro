@@ -11,24 +11,6 @@ self.addEventListener('install', async function (installEvent) {
     }),
   )
 })
-self.addEventListener('message', (event) => {
-  if (event.data != 'tnxg.top' || event.data != 'localhost') {
-    event.waitUntil(
-      self.clients.matchAll().then((clients) => {
-        clients.forEach((client) => {
-          client.postMessage('sw-update')
-        })
-      }
-      ),
-    )
-    return new Response("Access denied. Only 'tnxg.top' is allowed.", {
-      status: 403,
-      headers: { 'Content-Type': 'text/plain' },
-    })
-  } else {
-    console.log('[TNXG_SW]欢迎访问：' + event.data)
-  }
-});
 self.addEventListener('fetch', async (event) => {
   event.respondWith(handle(event.request))
 })
