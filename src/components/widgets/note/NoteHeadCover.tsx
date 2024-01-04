@@ -56,8 +56,12 @@ function cropImageTo16by9(src: string): Promise<string> {
     img.src = src
   })
 }
+export const NoteHeadCover = ({ image }: { image?: string }) => {
+  if (!image) return null
 
-export const NoteHeadCover = ({ image }: { image: string }) => {
+  return <NoteHeadCoverImpl image={image} />
+}
+const NoteHeadCoverImpl = ({ image }: { image: string }) => {
   const [imageBlob, setImageBlob] = useState<string | null>(null)
   useLayoutEffect(() => {
     let isMounted = true
@@ -69,13 +73,16 @@ export const NoteHeadCover = ({ image }: { image: string }) => {
       isMounted = false
     }
   }, [image])
+
   return (
     <>
-      <AutoResizeHeight>
+      {!!imageBlob && (
         <div
+          data-hide-print
           className={clsx(
             'z-1 absolute left-0 right-0 top-0',
             imageBlob ? 'h-[224px]' : '0',
+            'top-[-6.5rem] md:top-0',
           )}
         >
           <div
@@ -85,10 +92,13 @@ export const NoteHeadCover = ({ image }: { image: string }) => {
             className="cover-mask-b h-full w-full bg-cover bg-center bg-no-repeat"
           />
         </div>
-      </AutoResizeHeight>
+      )}
 
       <AutoResizeHeight>
-        <div className={imageBlob ? 'h-[120px]' : 'h-0'} />
+        <div
+          data-hide-print
+          className={clsx(imageBlob ? 'h-[120px]' : 'h-0', 'hidden md:block')}
+        />
       </AutoResizeHeight>
     </>
   )

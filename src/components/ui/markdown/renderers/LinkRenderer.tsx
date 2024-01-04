@@ -13,6 +13,7 @@ import {
   isGithubRepoUrl,
   isGithubUrl,
   isSelfArticleUrl,
+  isTMDBUrl,
   isTweetUrl,
   isYoutubeUrl,
   parseGithubGistUrl,
@@ -104,7 +105,20 @@ export const BlockLinkRenderer = ({
     }
     case isSelfArticleUrl(url): {
       return (
-        <LinkCard source={LinkCardSource.Self} id={url.pathname.slice(1)} />
+        <LinkCard
+          fallbackUrl={url.toString()}
+          source={LinkCardSource.Self}
+          id={url.pathname.slice(1)}
+        />
+      )
+    }
+    case isTMDBUrl(url): {
+      return (
+        <LinkCard
+          fallbackUrl={url.toString()}
+          source={LinkCardSource.TMDB}
+          id={url.pathname.slice(1)}
+        />
       )
     }
 
@@ -172,7 +186,11 @@ const GithubUrlRenderL: FC<{
     case isGithubPrUrl(url): {
       const { owner, repo, pr } = parseGithubPrUrl(url)
       return (
-        <LinkCard id={`${owner}/${repo}/${pr}`} source={LinkCardSource.GHPr} />
+        <LinkCard
+          fallbackUrl={url.toString()}
+          id={`${owner}/${repo}/${pr}`}
+          source={LinkCardSource.GHPr}
+        />
       )
     }
 
@@ -184,6 +202,7 @@ const GithubUrlRenderL: FC<{
             <MLink href={href}>{href}</MLink>
           </p>
           <LinkCard
+            fallbackUrl={url.toString()}
             id={`${owner}/${repo}/commit/${id}`}
             source={LinkCardSource.GHCommit}
           />
@@ -196,15 +215,17 @@ const GithubUrlRenderL: FC<{
       const ref = splitString[0]
       const path = ref ? splitString.slice(1).join('/') : afterTypeString
       return (
-        <>
-          <MLink href={href}>{href}</MLink>
+        <div className="flex w-full flex-col items-center">
           <EmbedGithubFile
             owner={owner}
             repo={repo}
             path={path}
             refType={ref}
           />
-        </>
+          <div className="mt-4">
+            <MLink href={href}>{href}</MLink>
+          </div>
+        </div>
       )
     }
   }

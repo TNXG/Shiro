@@ -195,6 +195,19 @@ export default async function RootLayout(props: Props) {
             rel="canonical"
             href="https://tnxg.top/"
           />
+
+          <link
+            rel="shortcut icon"
+            href={themeConfig.config.site.faviconDark}
+            type="image/x-icon"
+            media="(prefers-color-scheme: dark)"
+          />
+          <link
+            rel="shortcut icon"
+            href={themeConfig.config.site.favicon}
+            type="image/x-icon"
+            media="(prefers-color-scheme: light)"
+          />
         </head>
         <body
           className={`${sansFont.variable} ${serifFont.variable} m-0 h-full p-0 font-sans`}

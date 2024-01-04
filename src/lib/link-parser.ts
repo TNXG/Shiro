@@ -1,3 +1,5 @@
+import { getWebUrl } from '~/atoms'
+
 import { isClientSide, isDev } from './env'
 
 export const getTweetId = (url: URL) => {
@@ -74,10 +76,14 @@ export const isBilibiliUrl = (url: URL) => {
 
 export const isSelfArticleUrl = (url: URL) => {
   if (!isClientSide) return false
+
+  const webUrl = getWebUrl()
+  const webHost = webUrl ? new URL(webUrl).hostname : ''
+
   if (isDev && url.hostname === 'innei.in') return true
   return (
-    url.hostname === location.hostname &&
-    ['posts/', 'notes/'].some((path) => url.pathname.startsWith(path))
+    (url.hostname === location.hostname || webHost === url.hostname) &&
+    ['/posts/', '/notes/'].some((path) => url.pathname.startsWith(path))
   )
 }
 
@@ -91,6 +97,10 @@ export const isZhihuProfileUrl = (url: URL) => {
 
 export const isWikipediaUrl = (url: URL) => {
   return url.hostname.includes('wikipedia.org')
+}
+
+export const isTMDBUrl = (url: URL) => {
+  return url.hostname.includes('themoviedb.org')
 }
 
 export const parseSelfArticleUrl = (url: URL) => {
@@ -158,5 +168,13 @@ export const parseGithubPrUrl = (url: URL) => {
     repo,
     type,
     pr,
+  }
+}
+
+export const parseTMDBUrl = (url: URL) => {
+  const [_, type, id] = url.pathname.split('/')
+  return {
+    type,
+    id,
   }
 }

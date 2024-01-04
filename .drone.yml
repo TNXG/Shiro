@@ -7,31 +7,59 @@ platform:
 volumes:
   - name: shiro
     host:
-      path: /tmp/shiro
+      path: /drone/tmp/shiro
   - name: shiro-dist
     host:
-      path: /tmp/shiro-dist
+      path: /drone/tmp/shiro-dist
   - name: shiro-env
     host:
       path: /home/innei/docker-compose/drone/public/shiro/.env
-  - name: dns
+
+  - name: node_modules_cache
     host:
-      path: /etc/resolv.conf
+      path: /drone/tmp/cache
+  - name: cache
+    host:
+      path: /drone/tmp/shiro_next_cache
 
 steps:
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
+    volumes:
+      - name: node_modules_cache
+        path: /cache
+
   - name: build
     image: node:20-alpine
     commands:
       - 'npm i -g pnpm'
       - 'pnpm install --no-frozen-lockfile'
-      - 'nslookup fonts.gstatic.com'
       - 'npm run build'
 
+    depends_on:
+      - restore-cache
     volumes:
       - name: shiro-env
         path: /drone/src/.env
-      - name: dns
-        path: /etc/resolv.conf
+      - name: cache
+        path: /drone/src/.next
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+    volumes:
+      - name: node_modules_cache
+        path: /cache
+
+    depends_on:
+      - build
 
   - name: package
     image: node:20-alpine
@@ -44,6 +72,8 @@ steps:
     volumes:
       - name: shiro-dist
         path: /drone/src/assets
+      - name: cache
+        path: /drone/src/.next
 
     depends_on:
       - build
@@ -64,7 +94,7 @@ platform:
 volumes:
   - name: shiro-dist
     host:
-      path: /tmp/shiro-dist
+      path: /drone/tmp/shiro-dist
 
 steps:
   - name: transfer file

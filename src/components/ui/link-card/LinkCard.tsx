@@ -1,17 +1,23 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import clsx from 'clsx'
+import { m, useMotionTemplate, useMotionValue } from 'framer-motion'
 import Link from 'next/link'
 import RemoveMarkdown from 'remove-markdown'
+import uniqolor from 'uniqolor'
 import type { FC, ReactNode, SyntheticEvent } from 'react'
 
 import { simpleCamelcaseKeys as camelcaseKeys } from '@mx-space/api-client'
 
 import { LazyLoad } from '~/components/common/Lazyload'
+import { MingcuteStarHalfFill } from '~/components/icons/star'
 import { usePeek } from '~/components/widgets/peek/usePeek'
+import { LanguageToColorMap } from '~/constants/language'
 import { useIsClientTransition } from '~/hooks/common/use-is-client'
 import { preventDefault } from '~/lib/dom'
 import { fetchGitHubApi } from '~/lib/github'
+import { clsxm } from '~/lib/helper'
+import { getDominantColor } from '~/lib/image'
 import { apiClient } from '~/lib/request'
 
 import { LinkCardSource } from './enums'
@@ -21,6 +27,8 @@ export interface LinkCardProps {
   id: string
   source?: LinkCardSource
   className?: string
+
+  fallbackUrl?: string
 }
 
 export const LinkCard = (props: LinkCardProps) => {
@@ -35,17 +43,25 @@ export const LinkCard = (props: LinkCardProps) => {
   )
 }
 
+type CardState = {
+  title: ReactNode
+  desc?: ReactNode
+  image?: string
+  color?: string
+
+  classNames?: Partial<{
+    image: string
+  }>
+}
+
 const LinkCardImpl: FC<LinkCardProps> = (props) => {
-  const { id, source = LinkCardSource.Self, className } = props
+  const { id, source = LinkCardSource.Self, className, fallbackUrl } = props
 
   const [loading, setLoading] = useState(true)
   const [isError, setIsError] = useState(false)
-  const [fullUrl, setFullUrl] = useState('about:blank')
-  const [cardInfo, setCardInfo] = useState<{
-    title: ReactNode
-    desc?: ReactNode
-    image?: string
-  }>()
+  const [fullUrl, setFullUrl] = useState(fallbackUrl || 'javascript:;')
+
+  const [cardInfo, setCardInfo] = useState<CardState>()
 
   const peek = usePeek()
   const handleCanPeek = useCallback(
@@ -85,12 +101,28 @@ const LinkCardImpl: FC<LinkCardProps> = (props) => {
     },
   })
 
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const radius = useMotionValue(0)
+  const handleMouseMove = useCallback(
+    ({ clientX, clientY, currentTarget }: React.MouseEvent) => {
+      const bounds = currentTarget.getBoundingClientRect()
+      mouseX.set(clientX - bounds.left)
+      mouseY.set(clientY - bounds.top)
+      radius.set(Math.sqrt(bounds.width ** 2 + bounds.height ** 2) * 1.3)
+    },
+    [mouseX, mouseY, radius],
+  )
+
+  const background = useMotionTemplate`radial-gradient(${radius}px circle at ${mouseX}px ${mouseY}px, var(--spotlight-color) 0%, transparent 65%)`
+
   if (!isValid) {
     return null
   }
 
   const LinkComponent = source === 'self' ? Link : 'a'
 
+  const classNames = cardInfo?.classNames || {}
   return (
     <LinkComponent
       href={fullUrl}
@@ -100,17 +132,44 @@ const LinkCardImpl: FC<LinkCardProps> = (props) => {
         styles['card-grid'],
         (loading || isError) && styles['skeleton'],
         isError && styles['error'],
+        'group',
+
         className,
       )}
+      style={{
+        borderColor: cardInfo?.color ? `${cardInfo.color}30` : '',
+      }}
       onClick={handleCanPeek}
+      onMouseMove={handleMouseMove}
     >
+      {cardInfo?.color && (
+        <>
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundColor: cardInfo?.color,
+              opacity: 0.06,
+            }}
+          />
+          <m.div
+            layout
+            className="absolute inset-0 z-0 opacity-0 duration-500 group-hover:opacity-100"
+            style={
+              {
+                '--spotlight-color': `${cardInfo?.color}50`,
+                background,
+              } as any
+            }
+          />
+        </>
+      )}
       <span className={styles['contents']}>
         <span className={styles['title']}>{cardInfo?.title}</span>
         <span className={styles['desc']}>{cardInfo?.desc}</span>
       </span>
       {(loading || cardInfo?.image) && (
         <span
-          className={styles['image']}
+          className={clsxm(styles['image'], classNames.image)}
           data-image={cardInfo?.image || ''}
           style={{
             backgroundImage: cardInfo?.image
@@ -137,16 +196,7 @@ const LinkCardSkeleton = () => {
 
 type FetchFunction = (
   id: string,
-  setCardInfo: React.Dispatch<
-    React.SetStateAction<
-      | {
-          title: ReactNode
-          desc?: ReactNode
-          image?: string | undefined
-        }
-      | undefined
-    >
-  >,
+  setCardInfo: React.Dispatch<React.SetStateAction<CardState | undefined>>,
   setFullUrl: (url: string) => void,
 ) => Promise<void>
 
@@ -158,10 +208,11 @@ type FetchObject = {
 function validTypeAndFetchFunction(source: LinkCardSource, id: string) {
   const fetchDataFunctions = {
     [LinkCardSource.MixSpace]: fetchMxSpaceData,
-    [LinkCardSource.GHRepo]: fetchGitHubData,
+    [LinkCardSource.GHRepo]: fetchGitHubRepoData,
     [LinkCardSource.GHCommit]: fetchGitHubCommitData,
     [LinkCardSource.GHPr]: fetchGitHubPRData,
     [LinkCardSource.Self]: fetchMxSpaceData,
+    [LinkCardSource.TMDB]: fetchTheMovieDBData,
   } as Record<LinkCardSource, FetchObject>
 
   const fetchFunction = fetchDataFunctions[source]
@@ -173,7 +224,7 @@ function validTypeAndFetchFunction(source: LinkCardSource, id: string) {
   return { isValid, fetchFn: isValid ? fetchFunction.fetch : null }
 }
 
-const fetchGitHubData: FetchObject = {
+const fetchGitHubRepoData: FetchObject = {
   isValid: (id) => {
     // owner/repo
     const parts = id.split('/')
@@ -188,9 +239,24 @@ const fetchGitHubData: FetchObject = {
       const data = camelcaseKeys(response)
 
       setCardInfo({
-        title: data.name,
+        title: (
+          <span className="flex items-center gap-2">
+            <span className="flex-1">{data.name}</span>
+            <span className="flex-shrink-0 self-end justify-self-end">
+              {data.stargazersCount > 0 && (
+                <span className="inline-flex flex-shrink-0 items-center gap-1 self-center text-sm text-orange-400 dark:text-yellow-500">
+                  <i className="icon-[mingcute--star-line]" />
+                  <span className="font-sans font-medium">
+                    {data.stargazersCount}
+                  </span>
+                </span>
+              )}
+            </span>
+          </span>
+        ),
         desc: data.description,
         image: data.owner.avatarUrl,
+        color: (LanguageToColorMap as any)[data.language?.toLowerCase()],
       })
 
       setFullUrl(data.htmlUrl)
@@ -321,14 +387,88 @@ const fetchMxSpaceData: FetchObject = {
         setFullUrl(`/notes/${nid}`)
       }
 
+      const coverImage = data.cover || data.meta?.cover
+      let spotlightColor = ''
+      if (coverImage) {
+        const $image = new Image()
+        $image.src = coverImage
+        $image.crossOrigin = 'Anonymous'
+        $image.onload = () => {
+          setCardInfo((info) => {
+            if (info?.title !== data.title) return info
+            return { ...info, color: getDominantColor($image) }
+          })
+        }
+      } else {
+        spotlightColor = uniqolor(data.title, {
+          saturation: [30, 35],
+          lightness: [60, 70],
+        }).color
+      }
       setCardInfo({
         title: data.title,
         desc: data.summary || `${RemoveMarkdown(data.text).slice(0, 50)}...`,
-        image: data.cover || data.meta?.cover || data.images?.[0]?.src,
+        image: coverImage || data.images?.[0]?.src,
+        color: spotlightColor,
       })
     } catch (err) {
       console.error('Error fetching self data:', err)
       throw err
     }
+  },
+}
+
+const fetchTheMovieDBData: FetchObject = {
+  isValid(id) {
+    // tv/218230
+    const [type, realId] = id.split('/')
+
+    const canParsedTypes = ['tv', 'movie']
+    return canParsedTypes.includes(type) && realId.length > 0
+  },
+  async fetch(id, setCardInfo, setFullUrl) {
+    const [type, realId] = id.split('/')
+
+    const json = await fetch(`/api/tmdb/${type}/${realId}?language=zh-CN`)
+      .then((r) => r.json())
+      .catch((err) => {
+        console.error('Error fetching TMDB data:', err)
+        throw err
+      })
+
+    const title = type === 'tv' ? json.name : json.title
+    const originalTitle =
+      type === 'tv' ? json.original_name : json.original_title
+    setCardInfo({
+      title: (
+        <span className="flex flex-wrap items-end gap-2">
+          <span>{title}</span>
+          {title !== originalTitle && (
+            <span className="text-sm opacity-70">({originalTitle})</span>
+          )}
+          <span className="inline-flex flex-shrink-0 items-center gap-1 self-center text-xs text-orange-400 dark:text-yellow-500">
+            <MingcuteStarHalfFill />
+            <span className="font-sans font-medium">
+              {json.vote_average > 0 && json.vote_average.toFixed(1)}
+            </span>
+          </span>
+        </span>
+      ),
+      desc: (
+        <span className="line-clamp-none overflow-visible whitespace-pre-wrap">
+          {json.overview}
+        </span>
+      ),
+      image: `https://image.tmdb.org/t/p/w500${json.poster_path}`,
+      color: uniqolor(json.name, {
+        saturation: [30, 35],
+        lightness: [60, 70],
+      }).color,
+
+      classNames: {
+        image: 'self-start mt-4',
+      },
+    })
+    setFullUrl(json.homepage)
   },
 }
