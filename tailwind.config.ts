@@ -189,10 +189,11 @@ const twConfig: Config = {
     'group-hover:opacity-100',
     'transition-opacity',
     'group-hover:animation-blink',
+
+    '!w-full',
+    'w-full',
   ],
   theme: {
-    // colors: createVariableColors(twColors),
-
     extend: {
       fontFamily: {
         sans: 'HarmonyOS_Regular',

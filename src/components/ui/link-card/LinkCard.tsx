@@ -44,13 +44,14 @@ export const LinkCard = (props: LinkCardProps) => {
 }
 
 type CardState = {
-  title: ReactNode
+  title?: ReactNode
   desc?: ReactNode
   image?: string
   color?: string
 
   classNames?: Partial<{
     image: string
+    cardRoot: string
   }>
 }
 
@@ -128,13 +129,14 @@ const LinkCardImpl: FC<LinkCardProps> = (props) => {
       href={fullUrl}
       target={source !== 'self' ? '_blank' : '_self'}
       ref={ref}
-      className={clsx(
+      className={clsxm(
         styles['card-grid'],
         (loading || isError) && styles['skeleton'],
         isError && styles['error'],
         'group',
 
         className,
+        classNames.cardRoot,
       )}
       style={{
         borderColor: cardInfo?.color ? `${cardInfo.color}30` : '',
@@ -429,6 +431,9 @@ const fetchTheMovieDBData: FetchObject = {
   async fetch(id, setCardInfo, setFullUrl) {
     const [type, realId] = id.split('/')
 
+    setCardInfo({
+      classNames: { cardRoot: '!w-full' },
+    })
     const json = await fetch(`/api/tmdb/${type}/${realId}?language=zh-CN`)
       .then((r) => r.json())
       .catch((err) => {
@@ -466,9 +471,10 @@ const fetchTheMovieDBData: FetchObject = {
       }).color,
 
       classNames: {
-        image: 'self-start mt-4',
+        image: 'self-start !h-[75px] !w-[50px]',
+        cardRoot: '!w-full !flex-row-reverse',
       },
     })
-    setFullUrl(json.homepage)
+    json.homepage && setFullUrl(json.homepage)
   },
 }
