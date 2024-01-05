@@ -34,7 +34,6 @@ export const PostCopyright: FC = () => {
         <br />
         <Divider />
       </div>
-      <br />
       <p>文章标题：{title}</p>
       <p>文章作者：{name}</p>
       <p>
