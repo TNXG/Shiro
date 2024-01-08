@@ -143,9 +143,58 @@ export default async function RootLayout(props: Props) {
     <ClerkProvider>
       <html lang="zh-CN" className="noise" suppressHydrationWarning>
         <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+              if (window.location.host.startsWith("tnxg.top") || window.location.host.startsWith("localhost")) {
+                if (!!navigator.serviceWorker) {
+                  navigator.serviceWorker.register('/sw.js?t=' + new Date().getTime())
+                    .then(async (registration) => {
+                      if (localStorage.getItem('sw_installed') !== 'true') {
+                        localStorage.setItem('sw_installed', 'true');
+                        console.log('[TNXG_SW] 安装成功，正在重载页面！');
+                        fetch(window.location.href)
+                          .then(res => res.text())
+                          .then(text => {
+                            document.open();
+                            document.write(text);
+                            document.close();
+                          });
+                      } else {
+                        navigator.serviceWorker.controller.postMessage(window.location.hostname)
+                      }
+                    }).catch(err => {
+                      console.error('[TNXG_SW] 安装失败，原因： ' + err.message);
+                    });
+                } else {
+                  console.error('[TNXG_SW] 安装失败，原因： 浏览器不支持service worker');
+                }
+              } else {
+                fetch('https://assets.tnxg.whitenuo.cn/data/blog_error.html')
+                  .then(res => res.text())
+                  .then(text => {
+                    document.open()
+                    document.write(text);
+                    document.close();
+                    window.stop();
+                  });
+              }
+            `,
+            }}
+          />
           <SayHi />
           <HydrationEndDetector />
+          <link rel="stylesheet" href="/assets/css/master.css" />
+          <link
+            rel="stylesheet"
+            href="https://assets.tnxg.whitenuo.cn/fonts/HarmonyOS_Regular.css"
+          />
+          <link
+            rel="canonical"
+            href="https://tnxg.top/"
+          />
           <AccentColorStyleInjector />
+
           <link
             rel="shortcut icon"
             href={themeConfig.config.site.faviconDark}
@@ -191,28 +240,32 @@ const SayHi = () => {
       dangerouslySetInnerHTML={{
         __html: `var version = "${version}";
     (${function () {
-      console.log(
-        `%c Mix Space %c https://github.com/mx-space `,
-        'color: #fff; margin: 1em 0; padding: 5px 0; background: #2980b9;',
-        'margin: 1em 0; padding: 5px 0; background: #efefef;',
-      )
-      console.log(
-        `%c Shiro ${window.version} %c https://innei.ren `,
-        'color: #fff; margin: 1em 0; padding: 5px 0; background: #39C5BB;',
-        'margin: 1em 0; padding: 5px 0; background: #efefef;',
-      )
-
-      const motto = `
+            console.log(
+              `%c Mix Space %c https://github.com/mx-space `,
+              'color: #fff; margin: 1em 0; padding: 5px 0; background: #2980b9;',
+              'margin: 1em 0; padding: 5px 0; background: #efefef;',
+            )
+            console.log(
+              `%c Shiro ${window.version} %c https://innei.ren `,
+              'color: #fff; margin: 1em 0; padding: 5px 0; background: #39C5BB;',
+              'margin: 1em 0; padding: 5px 0; background: #efefef;',
+            )
+            console.log(
+              `%c TiaNXianG(iykrzu) 2019 - ${new Date().getFullYear()} %c https://tnxg.top `,
+              'color: #fff; margin: 1em 0; padding: 5px 0; background: #66CCFF;',
+              'margin: 1em 0; padding: 5px 0; background: #ee0000;',
+            )
+            const motto = `
 This Personal Space Powered By Mix Space.
 Written by TypeScript, Coding with Love.
 --------
 Stay hungry. Stay foolish. --Steve Jobs
 `
 
-      if (document.firstChild?.nodeType !== Node.COMMENT_NODE) {
-        document.prepend(document.createComment(motto))
-      }
-    }.toString()})();`,
+            if (document.firstChild?.nodeType !== Node.COMMENT_NODE) {
+              document.prepend(document.createComment(motto))
+            }
+          }.toString()})();`,
       }}
     />
   )
