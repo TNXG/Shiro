@@ -1,3 +1,5 @@
+import { TENCENT_CDN_DOMAIN } from '~/app.static.config'
+
 export const calculateDimensions = ({
   width,
   height,
@@ -38,4 +40,17 @@ export function getDominantColor(imageObject: HTMLImageElement) {
   return `#${((1 << 24) + (i[0] << 16) + (i[1] << 8) + i[2])
     .toString(16)
     .slice(1)}`
+}
+
+export const addImageUrlResizeQuery = (url: string, size: number) => {
+  const parsedUrl = new URL(url)
+
+  if (parsedUrl.host === TENCENT_CDN_DOMAIN) {
+    // Tencent Cloud 数据万象
+    // ?imageMogr2/thumbnail/300x
+
+    return `${url}?imageMogr2/thumbnail/${size}x/strip`
+  }
+
+  return url
 }

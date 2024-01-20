@@ -57,6 +57,8 @@ export interface MdProps {
   as?: React.ElementType
 
   allowsScript?: boolean
+
+  removeWrapper?: boolean
 }
 
 export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
@@ -73,15 +75,19 @@ export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
       additionalParserRules,
       as: As = 'div',
       allowsScript = false,
+      removeWrapper = false,
       ...rest
     } = props
 
     const ref = useRef<HTMLDivElement>(null)
 
     const node = useMemo(() => {
-      if (!value && typeof props.children != 'string') return null
+      const mdContent = value || props.children
 
-      const mdElement = compiler(`${value || props.children}`, {
+      if (!mdContent) return null
+      if (typeof mdContent != 'string') return null
+
+      const mdElement = compiler(mdContent, {
         wrapper: null,
         // @ts-ignore
         overrides: {
@@ -276,6 +282,8 @@ export const Markdown: FC<MdProps & MarkdownToJSX.Options & PropsWithChildren> =
       additionalParserRules,
       rest,
     ])
+
+    if (removeWrapper) return <Suspense>{node}</Suspense>
 
     return (
       <Suspense>

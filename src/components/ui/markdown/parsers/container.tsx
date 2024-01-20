@@ -1,10 +1,13 @@
 import React from 'react'
-import { blockRegex, Priority } from 'markdown-to-jsx'
+import { Priority } from 'markdown-to-jsx'
 import type { MarkdownToJSX } from 'markdown-to-jsx'
+
+import { clsxm } from '~/lib/helper'
 
 import { Banner } from '../../banner/Banner'
 import { Gallery } from '../../gallery/Gallery'
 import { Markdown } from '../Markdown'
+import { GridMarkdownImage, GridMarkdownImages } from '../renderers/image'
 import { pickImagesFromMarkdown } from '../utils/image'
 
 const shouldCatchContainerName = [
@@ -19,26 +22,35 @@ const shouldCatchContainerName = [
   'success',
   'warning',
   'note',
+
+  'grid',
 ].join('|')
 
 export const ContainerRule: MarkdownToJSX.Rule = {
-  match: blockRegex(
-    new RegExp(
-      `^\\s*::: *(?<name>(${shouldCatchContainerName})) *({(?<params>(.*?))})? *\n(?<content>[\\s\\S]+?)\\s*::: *(?:\n *)+\n?`,
-    ),
-  ),
+  match: (source: string) => {
+    const result =
+      /^\s*::: *(?<type>.*?) *(?:{(?<params>.*?)})? *\n(?<content>[\s\S]+?)\s*::: *(?:\n *)+\n?/.exec(
+        source,
+      )
+
+    if (!result) return null
+
+    const type = result.groups!.type
+    if (!type || !type.match(shouldCatchContainerName)) return null
+    return result
+  },
   order: Priority.MED,
   parse(capture) {
     const { groups } = capture
     return {
-      ...groups,
+      node: { ...groups },
     }
   },
-  // @ts-ignore
-  react(node, _, state) {
-    const { name, content, params } = node
 
-    switch (name) {
+  react(node, _, state) {
+    const { type, params, content } = node.node
+
+    switch (type) {
       case 'carousel':
       case 'gallery': {
         return (
@@ -55,10 +67,11 @@ export const ContainerRule: MarkdownToJSX.Rule = {
         const transformMap = {
           warning: 'warn',
           danger: 'error',
+          note: 'info',
         }
         return (
           <Banner
-            type={name || (transformMap as any)[name] || 'info'}
+            type={(transformMap as any)[type] || type}
             className="my-4"
             key={state?.key}
           >
@@ -85,6 +98,62 @@ export const ContainerRule: MarkdownToJSX.Rule = {
           </Banner>
         )
       }
+
+      case 'grid': {
+        // cols=2,gap=4,rows=2,type=images
+
+        const { cols, gap = 8, rows, type = 'normal' } = parseParams(params)
+
+        const Grid: Component = ({ children, className }) => {
+          return (
+            <div
+              className={clsxm('relative grid w-full', className)}
+              style={{
+                gridTemplateColumns: cols
+                  ? `repeat(${cols}, minmax(0, 1fr))`
+                  : undefined,
+                gap: `${gap}px`,
+                gridTemplateRows: rows
+                  ? `repeat(${rows}, minmax(0, 1fr))`
+                  : undefined,
+              }}
+            >
+              {children}
+            </div>
+          )
+        }
+        switch (type) {
+          case 'normal': {
+            return (
+              <Grid key={state?.key}>
+                <Markdown
+                  overrides={{
+                    img: GridMarkdownImage,
+                  }}
+                  value={content}
+                  allowsScript
+                  removeWrapper
+                  className="w-full [&>p:first-child]:mt-0"
+                />
+              </Grid>
+            )
+          }
+          case 'images': {
+            const imagesSrc = pickImagesFromMarkdown(content).map((r) => r.url)
+
+            return (
+              <GridMarkdownImages
+                height={rows && cols ? +rows / +cols : 1}
+                key={state.key}
+                imagesSrc={imagesSrc}
+                Wrapper={Grid}
+              />
+            )
+          }
+          default:
+            return null
+        }
+      }
     }
 
     return (
@@ -104,3 +173,21 @@ export const ContainerRule: MarkdownToJSX.Rule = {
  * ![name](url)
  * :::
  */
+
+type ParsedResult = {
+  [key: string]: string
+}
+
+function parseParams(input: string): ParsedResult {
+  const regex = /(\w+)=(\w+)/g
+  let match: RegExpExecArray | null
+  const result: ParsedResult = {}
+
+  while ((match = regex.exec(input)) !== null) {
+    const key = match[1]
+    const value = match[2]
+    result[key] = value
+  }
+
+  return result
+}
