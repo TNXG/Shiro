@@ -163,12 +163,11 @@ const FooterBottom = async () => {
           <a href="/sitemap.xml" target="_blank">
             站点地图
           </a>
-          <Divider />
-          <a>
-            <SubscribeTextButton>
-              <Divider className="inline" />
-            </SubscribeTextButton>
-          </a>
+          <Divider className="inline" />
+
+          <SubscribeTextButton>
+            <Divider className="inline" />
+          </SubscribeTextButton>
         </span>
         <span className="mt-3 block md:mt-0 md:inline">
           Live in the present more than the future or the past.
