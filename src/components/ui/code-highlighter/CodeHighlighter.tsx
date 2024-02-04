@@ -60,10 +60,10 @@ export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style
 
   useEffect(() => {
     if (ref.current) {
-      renderCodeHighlighter(content, lang, 'dark-plus').then((html) => {
-        if (ref.current) { // 添加非空检查
-          ref.current.innerHTML = html;
-        }
+      // 提供一个默认值，确保 lang 不是 undefined
+      const language = lang || 'markup';
+      renderCodeHighlighter(content, language, 'dark-plus').then((html) => {
+        ref.current.innerHTML = html;
       });
     }
   }, [content, lang]);
@@ -87,10 +87,10 @@ export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style
 const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
   useEffect(() => {
     if (ref.current) {
-      renderCodeHighlighter(ref.current.textContent || '', 'markup', 'dark-plus').then((html) => {
-        if (ref.current) { // 添加非空检查
-          ref.current.innerHTML = html;
-        }
+      // 提供一个默认值，确保 lang 不是 undefined
+      const language = ref.current.getAttribute('class')?.split(' ').find(c => c.startsWith('language-'))?.replace('language-', '') || 'markup';
+      renderCodeHighlighter(ref.current.textContent || '', language, 'dark-plus').then((html) => {
+        ref.current.innerHTML = html;
       });
     }
   }, []);
