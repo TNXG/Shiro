@@ -17,11 +17,15 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Link from 'next/link'
 import type { KeyboardEventHandler } from 'react'
 
+import { useIsLogged } from '~/atoms'
 import { EmptyIcon } from '~/components/icons/empty'
+import { MotionButtonBase } from '~/components/ui/button'
 import { FABPortable } from '~/components/ui/fab'
+import { FloatPopover } from '~/components/ui/float-popover'
 import { microDampingPreset } from '~/constants/spring'
 import useDebounceValue from '~/hooks/common/use-debounce-value'
 import { useIsClient } from '~/hooks/common/use-is-client'
+import { getToken } from '~/lib/cookie'
 import { noopArr } from '~/lib/noop'
 import { apiClient } from '~/lib/request'
 import { jotaiStore } from '~/lib/store'
@@ -47,7 +51,7 @@ export const SearchFAB = () => {
 export const SearchPanelWithHotKey = () => {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'k' && e.metaKey) {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         jotaiStore.set(searchPanelOpenAtom, true)
       }
@@ -212,12 +216,13 @@ const SearchPanelImpl = () => {
     [data.length],
   )
 
+  const isLogged = useIsLogged()
   return (
     <m.div
       className={clsx(
         'h-[600px] max-h-[80vh] w-[800px] max-w-[100vw] rounded-none md:h-screen md:max-h-[60vh] md:max-w-[80vw]',
-        'min-h-50 flex flex-col bg-slate-50/80 shadow-2xl backdrop-blur-md md:rounded-xl dark:bg-neutral-900/80',
-        'border-0 border-zinc-200 md:border dark:border-zinc-800',
+        'min-h-50 flex flex-col bg-slate-50/80 shadow-2xl backdrop-blur-md dark:bg-neutral-900/80 md:rounded-xl',
+        'border-0 border-zinc-200 dark:border-zinc-800 md:border',
       )}
       onKeyDown={handleKeyDown}
       role="dialog"
@@ -279,7 +284,27 @@ const SearchPanelImpl = () => {
         </ul>
       </div>
 
-      <div className="flex flex-shrink-0 items-center justify-end px-4 py-2">
+      <div className="flex flex-shrink-0 items-center justify-between px-4 py-2">
+        {isLogged ? (
+          <MotionButtonBase
+            onClick={() => {
+              window.open(
+                `${apiClient.search.proxy('algolia')('import-json').toString(true)}?token=${getToken()}`,
+              )
+            }}
+          >
+            <FloatPopover
+              type="tooltip"
+              triggerElement={
+                <i className="icon-[mingcute--download-2-line]" />
+              }
+            >
+              下载搜索索引文件以便导入 algolia 搜索
+            </FloatPopover>
+          </MotionButtonBase>
+        ) : (
+          <div />
+        )}
         <a
           href="https://www.algolia.com"
           target="_blank"

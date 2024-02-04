@@ -3,8 +3,8 @@ import { useMemo, useRef } from 'react'
 import type { FC } from 'react'
 
 import { StyledButton } from '~/components/ui/button'
+import { CodeEditor } from '~/components/ui/code-editor'
 import { HighLighter } from '~/components/ui/code-highlighter'
-import { TextArea } from '~/components/ui/input'
 import { useModalStack } from '~/components/ui/modal'
 import { useEventCallback } from '~/hooks/common/use-event-callback'
 import { toast } from '~/lib/toast'
@@ -91,16 +91,17 @@ const EditorModal: FC<{
 
   return (
     <div className="relative flex w-full flex-grow flex-col lg:w-[600px]">
-      <div className="h-[400px] w-full">
-        <TextArea
-          className="h-full w-full p-0 font-mono"
-          defaultValue={value}
-          onChange={(e) => {
-            currentEditValueRef.current = e.target.value
+      <div className="relative max-h-[450px] w-full overflow-auto">
+        <CodeEditor
+          minHeight="350px"
+          content={value}
+          language="json"
+          onChange={(value) => {
+            currentEditValueRef.current = value
           }}
         />
       </div>
-      <div className="flex flex-shrink-0 justify-end">
+      <div className="flex flex-shrink-0 justify-end p-2">
         <StyledButton onClick={handleSave}>保存</StyledButton>
       </div>
     </div>

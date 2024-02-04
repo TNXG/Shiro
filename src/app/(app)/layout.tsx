@@ -223,7 +223,7 @@ export default async function RootLayout(props: PropsWithChildren) {
               <SearchPanelWithHotKey />
               <Analyze />
             </WebAppProviders>
-            <ToastContainer stacked />
+            <ToastContainer />
             <ScrollTop />
           </body>
         </html>

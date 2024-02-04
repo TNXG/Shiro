@@ -35,10 +35,13 @@ steps:
 
   - name: build
     image: node:20-alpine
+    environment:
+      NODE_OPTIONS: --max_old_space_size=4096
+      NEXT_TELEMETRY_DISABLED: 1
     commands:
       - 'npm i -g pnpm'
       - 'pnpm install --no-frozen-lockfile'
-      - 'npm run build'
+      - 'npm run build:ci'
 
     depends_on:
       - restore-cache
