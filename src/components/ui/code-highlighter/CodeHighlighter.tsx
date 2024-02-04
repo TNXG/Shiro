@@ -63,7 +63,9 @@ export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style
       // 提供一个默认值，确保 lang 不是 undefined
       const language = lang || 'markup';
       renderCodeHighlighter(content, language, 'dark-plus').then((html) => {
-        ref.current.innerHTML = html;
+        if (ref.current) {
+          ref.current.innerHTML = html;
+        }
       });
     }
   }, [content, lang]);
