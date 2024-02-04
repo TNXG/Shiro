@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
-import type { FC, Component } from 'react'
+import type { FC } from 'react'
 
 // import { useIsPrintMode } from '~/atoms/css-media'
 // import { useIsDark } from '~/hooks/common/use-is-dark'
