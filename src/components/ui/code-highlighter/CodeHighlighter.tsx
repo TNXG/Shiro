@@ -54,21 +54,17 @@ export const HighLighter: FC<Props> = (props) => {
   )
 }
 
-export const BaseCodeHighlighter: Component<
-  Props & {
-    style: React.CSSProperties
-  }
-> = ({ content, lang, className, style }) => {
-  const ref = useRef<HTMLElement>(null)
-  useLoadHighlighter(ref)
+export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style }) => {
+  const ref = useRef<HTMLElement>(null);
+  useLoadHighlighter(ref);
 
   useEffect(() => {
     if (ref.current) {
       renderCodeHighlighter(content, lang, 'dark-plus').then((html) => {
-        ref.current.innerHTML = html
-      })
+        ref.current.innerHTML = html;
+      });
     }
-  }, [content, lang])
+  }, [content, lang]);
 
   return (
     <pre
@@ -83,8 +79,8 @@ export const BaseCodeHighlighter: Component<
         {content}
       </code>
     </pre>
-  )
-}
+  );
+};
 
 const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
   useEffect(() => {
