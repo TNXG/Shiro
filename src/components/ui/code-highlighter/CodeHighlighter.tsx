@@ -1,18 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from 'react'
-import type { FC } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
+import type { FC, Component } from 'react'
 
 import { useIsPrintMode } from '~/atoms/css-media'
 import { useIsDark } from '~/hooks/common/use-is-dark'
 import { clsxm } from '~/lib/helper'
+import { renderCodeHighlighter } from './render.server'
 import { toast } from '~/lib/toast'
 
 import styles from './CodeHighlighter.module.css'
-import { renderCodeHighlighter } from './render.server'
 
 declare global {
   interface Window {
@@ -23,10 +18,13 @@ declare global {
 interface Props {
   lang: string | undefined
   content: string
+  className?: string
+  style?: React.CSSProperties
 }
 
 export const HighLighter: FC<Props> = (props) => {
-  const { lang: language, content: value } = props
+  const { lang: language, content: value, className, style } = props
+
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(value)
     toast.success('COPIED！已复制！')
@@ -40,7 +38,7 @@ export const HighLighter: FC<Props> = (props) => {
         {language?.toUpperCase()}
       </span>
 
-      <pre className="line-numbers !bg-transparent" data-start="1">
+      <pre className={clsxm('!bg-transparent', className)} style={style} data-start="1">
         <code
           className={`language-${language ?? 'markup'} !bg-transparent`}
           ref={ref}
@@ -65,8 +63,13 @@ export const BaseCodeHighlighter: Component<
   useLoadHighlighter(ref)
 
   useEffect(() => {
-    window.Prism?.highlightElement(ref.current)
+    if (ref.current) {
+      renderCodeHighlighter(content, lang, 'dark-plus').then((html) => {
+        ref.current.innerHTML = html
+      })
+    }
   }, [content, lang])
+
   return (
     <pre
       className={clsxm('!bg-transparent', className)}
@@ -84,49 +87,11 @@ export const BaseCodeHighlighter: Component<
 }
 
 const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
-  const prevThemeCSS = useRef<ReturnType<typeof loadStyleSheet>>()
-  const isPrintMode = useIsPrintMode()
-  const isDark = useIsDark()
-
-  useLayoutEffect(() => {
-    ;(async () => {
-      const shikiTheme = 'dark-plus'
-      const html = await renderCodeHighlighter(
-        value,
-        language as string,
-        shikiTheme, // 始终使用 'dark_plus' 主题
-      )
-      if (!ref.current) {
-        return
-      }
-      ref.current.innerHTML = html
-    })()
-  }, [isDark, value, language, isPrintMode])
-
-  const ref = useRef<HTMLElement>(null)
-  return (
-    <div className={styles['code-wrap']}>
-      <span className={styles['language-tip']} aria-hidden>
-        {language?.toUpperCase()}
-      </span>
-
-      <pre
-        className="line-numbers !bg-transparent"
-        data-start="1"
-        style={{ fontFamily: 'JetBrainsMono' }}
-      >
-        <code
-          className={`language-${language ?? 'markup'} !bg-transparent`}
-          ref={ref}
-          style={{ fontFamily: 'JetBrainsMono' }}
-        >
-          {value}
-        </code>
-      </pre>
-
-      <div className={styles['copy-tip']} onClick={handleCopy} aria-hidden>
-        Copy
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    if (ref.current) {
+      renderCodeHighlighter(ref.current.textContent || '', 'markup', 'dark-plus').then((html) => {
+        ref.current.innerHTML = html
+      })
+    }
+  }, [])
 }
