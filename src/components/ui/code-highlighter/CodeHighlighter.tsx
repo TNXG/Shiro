@@ -16,10 +16,10 @@ declare global {
 }
 
 interface Props {
-  lang: string | undefined
-  content: string
-  className?: string
-  style?: React.CSSProperties
+  lang: string | undefined;
+  content: string;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export const HighLighter: FC<Props> = (props) => {
@@ -60,7 +60,8 @@ export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style
 
   useEffect(() => {
     if (ref.current) {
-      renderCodeHighlighter(content, lang, 'dark-plus').then((html) => {
+      const language = lang ?? 'markup';
+      renderCodeHighlighter(content, language, 'dark-plus').then((html) => {
         ref.current.innerHTML = html;
       });
     }
@@ -85,9 +86,10 @@ export const BaseCodeHighlighter: FC<Props> = ({ content, lang, className, style
 const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
   useEffect(() => {
     if (ref.current) {
-      renderCodeHighlighter(ref.current.textContent || '', 'markup', 'dark-plus').then((html) => {
-        ref.current.innerHTML = html
-      })
+      const language = ref.current.getAttribute('class')?.split(' ').find(c => c.startsWith('language-'))?.replace('language-', '') || 'markup';
+      renderCodeHighlighter(ref.current.textContent || '', language, 'dark-plus').then((html) => {
+        ref.current.innerHTML = html;
+      });
     }
-  }, [])
-}
+  }, []);
+};
