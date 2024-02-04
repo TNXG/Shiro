@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 import type { FC, Component } from 'react'
 
-import { useIsPrintMode } from '~/atoms/css-media'
-import { useIsDark } from '~/hooks/common/use-is-dark'
+// import { useIsPrintMode } from '~/atoms/css-media'
+// import { useIsDark } from '~/hooks/common/use-is-dark'
 import { clsxm } from '~/lib/helper'
 import { renderCodeHighlighter } from './render.server'
 import { toast } from '~/lib/toast'
