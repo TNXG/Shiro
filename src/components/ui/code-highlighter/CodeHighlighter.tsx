@@ -92,7 +92,9 @@ const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
       // 提供一个默认值，确保 lang 不是 undefined
       const language = ref.current.getAttribute('class')?.split(' ').find(c => c.startsWith('language-'))?.replace('language-', '') || 'markup';
       renderCodeHighlighter(ref.current.textContent || '', language, 'dark-plus').then((html) => {
-        ref.current.innerHTML = html;
+        if (ref.current) {
+          ref.current.innerHTML = html;
+        }
       });
     }
   }, []);
