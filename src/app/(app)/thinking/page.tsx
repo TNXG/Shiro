@@ -27,8 +27,8 @@ import { Markdown } from '~/components/ui/markdown'
 import { useModalStack } from '~/components/ui/modal'
 import { RelativeTime } from '~/components/ui/relative-time'
 import { usePrevious } from '~/hooks/common/use-previous'
-import { sample } from '~/lib/_'
 import { preventDefault } from '~/lib/dom'
+import { sample } from '~/lib/lodash'
 import { apiClient } from '~/lib/request'
 import { toast } from '~/lib/toast'
 import { urlBuilder } from '~/lib/url-builder'
@@ -62,7 +62,8 @@ const PostBox = () => {
   return (
     <form onSubmit={preventDefault} className="mb-8">
       <TextArea
-        className="h-[150px] rounded-md border border-slate-200 bg-slate-50 dark:border-zinc-800 dark:bg-neutral-900/50"
+        wrapperClassName="h-[150px]"
+        className="rounded-md border border-slate-200 bg-zinc-50 dark:border-zinc-800 dark:bg-neutral-900/50"
         value={value}
         placeholder="此刻在想什么？"
         onChange={(e) => {

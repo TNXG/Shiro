@@ -23,9 +23,9 @@ import {
   softBouncePreset,
   softSpringPreset,
 } from '~/constants/spring'
-import { shuffle } from '~/lib/_'
 import { isDev } from '~/lib/env'
 import { clsxm } from '~/lib/helper'
+import { shuffle } from '~/lib/lodash'
 import { noopObj } from '~/lib/noop'
 import { apiClient } from '~/lib/request'
 import { routeBuilder, Routes } from '~/lib/route-builder'
@@ -90,7 +90,7 @@ const TwoColumnLayout = ({
   rightContainerClassName?: string
 }) => {
   return (
-    <div className="relative flex h-full w-full flex-col flex-wrap items-center lg:flex-row">
+    <div className="relative flex h-full w-full max-w-[1800px] flex-col flex-wrap items-center lg:flex-row">
       {children.slice(0, 2).map((child, i) => {
         return (
           <div
@@ -222,6 +222,7 @@ const Welcome = () => {
 
 const PostScreen = () => {
   const { posts } = useHomeQueryData()
+
   return (
     <Screen className="h-fit min-h-[120vh]">
       <TwoColumnLayout leftContainerClassName="h-[30rem] lg:h-1/2">
