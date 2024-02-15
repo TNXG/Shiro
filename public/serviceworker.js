@@ -199,13 +199,15 @@ const handle = async (req) => {
       }
     }
   }
-
-  if (req.url.includes('jsdelivr.net')) {
+  // jsdelivr镜像处理函数 https://tnxg.top/_next/image?url=https%3A%2F%2Ffastly.jsdelivr.net
+  if (req.url.includes('/_next/image?url=https%3A%2F%2F') && /jsdelivr\.net|fastly\.jsdelivr\.net/.test(req.url)) {
     console.log('[TNXG_SW]检测到网络请求：' + req.url)
-    // 获取请求路径
-    const path = req.url.replace(/(https|http)?:\/\/(.[^/]+)/, '')
+    imgurl = req.url.replace('https://tnxg.top/_next/image?url=', '')
+    imgurl = decodeURIComponent(imgurl)
+    imgurl = imgurl.split('&')[0]
+    console.log('[TNXG_SW]检测到Shiro图片代理链接，转换为直链：' + imgurl)
+    const path = imgurl.replace(/(https|http)?:\/\/(.[^/]+)/, '')
     const jsdelivr_mirror = [
-      `https://cdn2.chuqis.com` + path,
       `https://jsd.onmicrosoft.cn` + path,
     ]
     return 并发请求(jsdelivr_mirror)
