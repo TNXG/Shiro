@@ -191,7 +191,7 @@ export default async function RootLayout(props: PropsWithChildren) {
           <link rel="stylesheet" href="/assets/css/master.css" />
           <link
             rel="stylesheet"
-            href="https://assets.tnxg.whitenuo.cn/fonts/HarmonyOS_Regular.css"
+            href="https://cdn.tnxg.top/tnxg-r2/fonts/MiSansVF_Regular.css"
           />
           <link
             rel="canonical"

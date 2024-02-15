@@ -13,7 +13,7 @@ import { loadStyleSheet } from '~/lib/load-script'
 import { Noop } from '~/lib/noop'
 import { jotaiStore } from '~/lib/store'
 
-type Font = 'serif' | 'HarmonyOS_Regular' | 'youzai' | 'lxgw'
+type Font = 'serif' | 'MiSans_VF' | 'youzai' | 'lxgw'
 // 设置手记字体
 const fontAtom = atomWithStorage<Font>('note-font', 'youzai')
 
@@ -34,8 +34,8 @@ export const NoteFontSettingFab = () => {
               <SerifFontSvg />
             </FontItem>
 
-            <FontItem type="HarmonyOS_Regular">
-              <HarmonyOS_RegularFont />
+            <FontItem type="MiSans_VF">
+              <MiSans_VFFont  />
             </FontItem>
 
             <FontItem type="lxgw">
@@ -57,17 +57,17 @@ const FONT_CONFIG = {
   youzai: {
     stylesheetUrl:
       'https://fastly.jsdelivr.net/gh/Innei/static@master/fonts/yozai/stylesheet.css',
-    fontFamily: `'Yozai', 'LXGW WenKai Screen R', "HarmonyOS_Regular", var(--font-serif), system-ui`,
+    fontFamily: `'Yozai', 'LXGW WenKai Screen R', "MiSans_VF", var(--font-serif), system-ui`,
   },
-  HarmonyOS_Regular: {
+  MiSans_VF: {
     stylesheetUrl:
-      'https://assets.tnxg.whitenuo.cn/fonts/HarmonyOS_Regular.css',
-    fontFamily: `HarmonyOS_Regular`,
+      'https://cdn.tnxg.top/tnxg-r2/fonts/MiSansVF_Regular.css',
+    fontFamily: `MiSans_VF`,
   },
   lxgw: {
     stylesheetUrl:
       'https://cdnjs.cloudflare.com/ajax/libs/lxgw-wenkai-screen-webfont/1.7.0/lxgwwenkaiscreenr.css',
-    fontFamily: `'LXGW WenKai Screen R', Yozai, "HarmonyOS_Regular", var(--font-serif), system-ui`,
+    fontFamily: `'LXGW WenKai Screen R', Yozai, "MiSans_VF", var(--font-serif), system-ui`,
   },
 }
 
@@ -127,8 +127,8 @@ const FontItem: Component<{
   )
 }
 
-export const HarmonyOS_RegularFont = () => {
-  return <span className="font-HarmonyOS_Regular text-[30px]">字</span>
+export const MiSans_VFFont = () => {
+  return <span className="font-MiSans_VF text-[30px]">字</span>
 }
 
 export const YouZaiFontSvg = () => {
