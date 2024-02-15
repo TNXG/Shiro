@@ -181,7 +181,7 @@ const FooterBottom = async () => {
           Live in the present more than the future or the past.
         </span>
       </p>
-      <p>
+      <div>
         <PoweredBy className="my-3 block md:my-0 md:inline" />
         {icp && (
           <>
@@ -206,7 +206,7 @@ const FooterBottom = async () => {
             </span>
           </>
         )} */}
-      </p>
+      </div>
     </div>
   )
 }

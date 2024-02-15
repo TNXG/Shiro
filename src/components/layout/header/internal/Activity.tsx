@@ -13,11 +13,8 @@ import clsx from 'clsx'
 import { AnimatePresence, m } from 'framer-motion'
 import Image from 'next/image'
 
-import {
-  setActivityMediaInfo,
-  setActivityProcessInfo,
-  useActivity,
-} from '~/atoms/activity'
+import { setActivityMediaInfo, setActivityProcessInfo } from '~/atoms/activity'
+import { useActivity } from '~/atoms/hooks'
 import { ImpressionView } from '~/components/common/ImpressionTracker'
 import { FloatPopover } from '~/components/ui/float-popover'
 import { softBouncePreset } from '~/constants/spring'
@@ -112,6 +109,7 @@ const ActivityIcon = memo(() => {
     }
     setActivityProcessInfo({
       name: data.processInfo?.name || data.processName,
+      iconUrl: data.processInfo?.iconUrl,
       iconBase64: data.processInfo?.iconBase64,
       description: data.processInfo?.description,
     })
@@ -206,12 +204,18 @@ const TriggerComponent = memo<{
   const isBuiltIn = !!appIcon[processName]
 
   const src =
-    !isBuiltIn && icon ? icon : `${CND_DOMAIN}/apps/${appIcon[processName]}.png`
+    !isBuiltIn && icon
+      ? icon
+      : isBuiltIn
+        ? `${CND_DOMAIN}/apps/${appIcon[processName]}.png`
+        : ''
 
   const className = clsx('pointer-events-none select-none', {
     'rounded-md': !isBuiltIn,
   })
   const [error, setError] = React.useState(false)
+
+  if (!src) return null
 
   return (
     <Image
