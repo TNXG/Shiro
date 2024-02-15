@@ -64,7 +64,7 @@ const ManualSummary: Component<{
         <i className="icon-[mingcute--sparkles-line] mr-2 text-lg" />
         摘要
       </div>
-      <div className="!m-0 text-sm leading-loose text-base-content/85">
+      <div className="!m-0 text-lg leading-loose text-base-content/85">
         {summary}
       </div>
     </div>

@@ -27,7 +27,7 @@ export const PostCopyright: FC = () => {
   const { title, link, date } = data
   return (
     <section
-      className="mt-4 text-sm leading-loose text-gray-600 dark:text-neutral-400"
+      className="mt-4 text-lg leading-loose text-gray-600 dark:text-neutral-400"
       id="copyright"
     >
       <div>
