@@ -84,7 +84,7 @@ const SummaryContainer: Component<{
       </div>
 
       <AutoResizeHeight duration={0.3}>
-        <div className="!m-0 text-sm leading-loose text-base-content/85">
+        <div className="!m-0 text-lg leading-loose text-base-content/85">
           {isLoading ? (
             <div className="space-y-2">
               <span className="block h-5 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-neutral-800" />

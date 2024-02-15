@@ -72,7 +72,7 @@ const RealDataRender = async ({ cid }: { cid: string }) => {
   if (!data) return null
 
   return (
-    <p className="!m-0 text-sm leading-loose text-base-content/85">
+    <p className="!m-0 text-lg leading-loose text-base-content/85">
       {data?.data}
     </p>
   )
