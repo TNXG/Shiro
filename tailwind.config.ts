@@ -195,7 +195,7 @@ const twConfig: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: 'HarmonyOS_Regular',
+        sans: 'MiSans_VF',
         serif: 'Noto Serif CJK SC',
         mono: 'JetBrainsMono',
       },
