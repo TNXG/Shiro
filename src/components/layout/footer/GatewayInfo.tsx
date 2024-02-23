@@ -6,7 +6,7 @@ import { sleep } from 'openai/core'
 import { useOnlineCount } from '~/atoms'
 import { useSocketIsConnect } from '~/atoms/hooks'
 import { ImpressionView } from '~/components/common/ImpressionTracker'
-import { usePeek } from '~/components/modules/peek/usePeek'
+import { PeekLink } from '~/components/modules/peek/PeekLink'
 import { Divider } from '~/components/ui/divider'
 import { FloatPopover } from '~/components/ui/float-popover'
 import { NumberSmoothTransition } from '~/components/ui/number-transition/NumberSmoothTransition'
@@ -95,6 +95,7 @@ export const GatewayInfo = () => {
       <FloatPopover
         asChild
         placement="top"
+        trigger="both"
         offset={10}
         triggerElement={
           <span key={count} className="cursor-pointer">
@@ -160,27 +161,23 @@ const RoomsInfo = () => {
     },
   })
 
-  const peek = usePeek()
-
-  if (!data) return <div className="loading loading-spinner" />
+  if (!data)
+    return (
+      <div className="flex h-6 w-6 center">
+        <div className="loading loading-spinner" />
+      </div>
+    )
   if (data.length === 0)
-    return <div className="text-gray-500">还没有人在偷偷观察哦~</div>
+    return <div className="text-gray-500">还没有小伙伴在阅览文章哦~</div>
   return (
     <div className="max-w-[80vw] lg:max-w-[400px]">
       <div className="mb-2 text-sm font-medium">下面的内容正在被偷看：</div>
       <ul className="flex flex-col justify-between gap-2">
         {data.map((room) => (
           <li key={room.path} className="flex items-center justify-between">
-            <a
-              href={room.path}
-              className="hover:underline"
-              onClick={(e) => {
-                e.preventDefault()
-                peek(room.path)
-              }}
-            >
+            <PeekLink href={room.path} className="hover:underline">
               {room.title}
-            </a>
+            </PeekLink>
             {!!room.count && (
               <span className="ml-5 inline-flex items-center text-sm text-gray-500">
                 <i className="icon-[mingcute--user-visible-line]" />{' '}

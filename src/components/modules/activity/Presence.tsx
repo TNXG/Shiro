@@ -45,6 +45,7 @@ import {
 import { queries } from '~/queries/definition'
 import { socketClient } from '~/socket'
 
+import { commentStoragePrefix } from '../comment/CommentBox/providers'
 import { useRoomContext } from './Room'
 
 export const Presence = () => {
@@ -77,7 +78,8 @@ const PresenceImpl = () => {
         ? owner?.name
         : clerkUser.isSignedIn
           ? clerkUser.user.fullName
-          : '',
+          : globalThis?.localStorage.getItem(`${commentStoragePrefix}author`) ||
+            '',
     [
       clerkUser.isSignedIn,
       clerkUser.user?.fullName,
@@ -130,15 +132,6 @@ const ReadPresenceTimeline = () => {
   const { roomName } = useRoomContext()
   const activityPresenceIdsCurrentRoom = useActivityPresenceByRoomName(roomName)
 
-  // console.log(activityPresenceIdsCurrentRoom, 'activityPresenceIdsCurrentRoom')
-  // console.log(
-
-  //   activityPresence,
-  //   'activityPresence',
-  //   sessionId,
-  //   useActivityPresence(),
-  // )
-
   return (
     <RootPortal>
       <div className="group fixed bottom-20 left-0 top-20 z-[3]">
@@ -181,7 +174,7 @@ const TimelineItem: FC<TimelineItemProps> = memo(({ type, identity }) => {
 
   if (typeof position !== 'number') return null
   const readingDuration = presence
-    ? formatSeconds((presence.operationTime - presence.connectedAt) / 1000)
+    ? formatSeconds((presence.operationTime - presence.joinedAt) / 1000)
     : ''
 
   return (

@@ -7,6 +7,10 @@ html {
   line-height: 1.5;
 }
 
+html body {
+  @apply max-w-screen overflow-x-hidden;
+}
+
 @media print {
   html {
     font-size: 15px;
@@ -39,10 +43,10 @@ html {
 }
 
 .prose {
-  :where(.image-placeholder):not(:where([class~='not-prose'] *)) {
+  /* :where(.image-placeholder):not(:where([class~='not-prose'] *)) {
     margin-top: 2em;
     margin-bottom: 2em;
-  }
+  } */
 
   figure img {
     @apply mb-0 mt-0;
@@ -55,6 +59,7 @@ html.noise body::before {
   content: '';
   opacity: 0.04;
   background-repeat: repeat;
+  filter: blur(3px);
 }
 
 @media print {

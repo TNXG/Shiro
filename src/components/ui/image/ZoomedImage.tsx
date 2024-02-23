@@ -1,14 +1,30 @@
 'use client'
 
-import { forwardRef, useCallback, useMemo, useRef, useState } from 'react'
+import {
+  cloneElement,
+  forwardRef,
+  memo,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import clsx from 'clsx'
 import { useIsomorphicLayoutEffect } from 'foxact/use-isomorphic-layout-effect'
 import mediumZoom from 'medium-zoom'
 import Image from 'next/image'
 import { tv } from 'tailwind-variants'
 import type { Zoom } from 'medium-zoom'
-import type { FC, ReactNode } from 'react'
+import type {
+  AnimationEventHandler,
+  DetailedHTMLProps,
+  FC,
+  ImgHTMLAttributes,
+  ReactNode,
+} from 'react'
 
+import { useIsMobile } from '~/atoms/hooks'
 import { LazyLoad } from '~/components/common/Lazyload'
 import { useIsUnMounted } from '~/hooks/common/use-is-unmounted'
 import { isDev, isServerSide } from '~/lib/env'
@@ -67,7 +83,7 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
   const [zoomer_] = useState(() => {
     if (isServerSide) return null!
     if (zoomer) return zoomer
-    const zoom = mediumZoom(undefined)
+    const zoom = mediumZoom(undefined, {})
     zoomer = zoom
     return zoom
   })
@@ -86,6 +102,7 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
     [isUnmount],
   )
   const imageRef = useRef<HTMLImageElement>(null)
+  const isMobile = useIsMobile()
   useIsomorphicLayoutEffect(() => {
     if (imageLoadStatus !== ImageLoadStatus.Loaded) {
       return
@@ -95,6 +112,18 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
     }
     const $image = imageRef.current
 
+    if (!$image) return
+    if (isMobile) {
+      $image.onclick = () => {
+        // NOTE: document 上的 click 可以用 stopImmediatePropagation 阻止
+        // e.stopImmediatePropagation()
+        window.open(src)
+      }
+      return () => {
+        $image.onclick = null
+      }
+    }
+
     if ($image) {
       zoomer_.attach($image)
 
@@ -102,8 +131,31 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
         zoomer_.detach($image)
       }
     }
-  }, [zoom, zoomer_, imageLoadStatus])
+  }, [zoom, zoomer_, imageLoadStatus, isMobile])
 
+  const handleOnLoad = useCallback(() => {
+    setImageLoadStatusSafe(ImageLoadStatus.Loaded)
+  }, [setImageLoadStatusSafe])
+  const handleError = useCallback(
+    () => setImageLoadStatusSafe(ImageLoadStatus.Error),
+    [setImageLoadStatusSafe],
+  )
+  const handleOnAnimationEnd: AnimationEventHandler<HTMLImageElement> =
+    useCallback((e) => {
+      if (ImageLoadStatus.Loaded) {
+        ;(e.target as HTMLElement).classList.remove(
+          imageStyles[ImageLoadStatus.Loaded],
+        )
+      }
+    }, [])
+  const imageClassName = useMemo(
+    () =>
+      styles({
+        status: imageLoadStatus,
+        className: clsx(imageStyles[ImageLoadStatus.Loaded], className),
+      }),
+    [className, imageLoadStatus],
+  )
   return (
     <figure>
       <span className="relative flex justify-center" data-hide-print>
@@ -111,7 +163,7 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
           <span>
             {imageLoadStatus !== ImageLoadStatus.Loaded && placeholder}
           </span>
-
+          {/* <div className="absolute top-0 opacity-30">{placeholder}</div> */}
           {imageLoadStatus === ImageLoadStatus.Error && (
             <div className="absolute inset-0 z-[1] flex flex-col gap-8 center">
               <i className="icon-[mingcute--close-line] text-4xl text-red-500" />
@@ -130,21 +182,10 @@ export const ImageLazy: Component<TImageProps & BaseImageProps> = ({
             title={title}
             alt={alt || title || ''}
             ref={imageRef}
-            onLoad={() => {
-              setImageLoadStatusSafe(ImageLoadStatus.Loaded)
-            }}
-            onError={() => setImageLoadStatusSafe(ImageLoadStatus.Error)}
-            className={styles({
-              status: imageLoadStatus,
-              className: clsx(imageStyles[ImageLoadStatus.Loaded], className),
-            })}
-            onAnimationEnd={(e: Event) => {
-              if (ImageLoadStatus.Loaded) {
-                ;(e.target as HTMLElement).classList.remove(
-                  imageStyles[ImageLoadStatus.Loaded],
-                )
-              }
-            }}
+            onLoad={handleOnLoad}
+            onError={handleError}
+            className={imageClassName}
+            onAnimationEnd={handleOnAnimationEnd}
           />
         </LazyLoad>
       </span>
@@ -256,21 +297,61 @@ const NoFixedPlaceholder = ({ accent }: { accent?: string }) => {
   )
 }
 
-const OptimizedImage: FC<any> = forwardRef(({ src, alt, ...rest }, ref) => {
-  const { height, width } = useMarkdownImageRecord(src!) || rest
-  if (!height || !width) return <img alt={alt} src={src} ref={ref} {...rest} />
-  return (
-    <Image
-      alt={alt || ''}
-      fetchPriority="high"
-      priority
-      src={src!}
-      {...rest}
-      height={+height}
-      width={+width}
-      ref={ref as any}
-    />
-  )
-})
+const OptimizedImage = memo(
+  forwardRef<
+    HTMLImageElement,
+    DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>
+  >(({ src, alt, ...rest }, ref) => {
+    const { height, width } = useMarkdownImageRecord(src!) || rest
+    const hasDim = !!(height && width)
+
+    const placeholderImageRef = useRef<HTMLImageElement>(null)
+    const ImageEl = (
+      <img
+        data-zoom-src={src}
+        alt={alt}
+        src={src}
+        ref={placeholderImageRef}
+        {...rest}
+      />
+    )
+
+    useImperativeHandle(ref, () => placeholderImageRef.current!)
+
+    const optimizedImageRef = useRef<HTMLImageElement>(null)
+
+    useIsomorphicLayoutEffect(() => {
+      const $renderImage = optimizedImageRef.current
+      if (!$renderImage) return
+      if (!placeholderImageRef.current) return
+      placeholderImageRef.current.src = $renderImage.src
+    }, [src])
+    return (
+      <>
+        {hasDim ? (
+          <>
+            <Image
+              alt={alt || ''}
+              fetchPriority="high"
+              priority
+              src={src!}
+              {...rest}
+              height={+height}
+              width={+width}
+              ref={optimizedImageRef}
+            />
+            <div className="absolute inset-0 flex justify-center opacity-0">
+              {cloneElement(ImageEl, {
+                src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // blank src
+              })}
+            </div>
+          </>
+        ) : (
+          ImageEl
+        )}
+      </>
+    )
+  }),
+)
 
 OptimizedImage.displayName = 'OptimizedImage'

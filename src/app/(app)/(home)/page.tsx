@@ -53,7 +53,7 @@ const Screen = forwardRef<
       ref={ref}
       style={isDev ? debugStyle : undefined}
       className={clsxm(
-        'relative flex h-screen min-h-[900px] flex-col center',
+        'relative flex h-screen min-h-[900px] flex-col overflow-hidden center',
         props.className,
       )}
     >
@@ -67,7 +67,7 @@ Screen.displayName = 'Screen'
 export default function Home() {
   return (
     <div>
-      <Welcome />
+      <Hero />
 
       <PostScreen />
 
@@ -111,7 +111,7 @@ const TwoColumnLayout = ({
   )
 }
 
-const Welcome = () => {
+const Hero = () => {
   const { title, description } = useAppConfigSelector((config) => {
     return {
       ...config.hero,
@@ -164,7 +164,7 @@ const Welcome = () => {
             <span className="opacity-80">{description}</span>
           </BottomToUpTransitionView>
 
-          <ul className="mt-8 flex space-x-4 center lg:mt-[7rem] lg:block">
+          <ul className="mt-8 flex flex-wrap gap-4 center lg:mt-[7rem] lg:justify-start">
             {Object.entries(socialIds || noopObj).map(
               ([type, id]: any, index) => {
                 if (!isSupportIcon(type)) return null

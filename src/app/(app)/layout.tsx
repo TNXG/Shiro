@@ -1,6 +1,5 @@
-import { Analytics } from '@vercel/analytics/react'
+import { cache } from 'react'
 import { ToastContainer } from 'react-toastify'
-import type { AggregateRoot } from '@mx-space/api-client'
 import type { Viewport } from 'next'
 import type { PropsWithChildren } from 'react'
 
@@ -15,6 +14,7 @@ import { AccentColorStyleInjector } from '~/components/modules/shared/AccentColo
 import { SearchPanelWithHotKey } from '~/components/modules/shared/SearchFAB'
 import { TocAutoScroll } from '~/components/modules/toc/TocAutoScroll'
 import { attachUAAndRealIp } from '~/lib/attach-ua'
+import { onlyGetOrSetCacheInVercelButFallback } from '~/lib/cache'
 import { sansFont, serifFont } from '~/lib/fonts'
 import { getQueryClient } from '~/lib/query-client.server'
 import { AggregationProvider } from '~/providers/root/aggregation-data-provider'
@@ -26,9 +26,7 @@ import { Analyze } from './analyze'
 
 const { version } = PKG
 
-export const revalidate = 60
-
-let aggregationData: (AggregateRoot & { theme: AppThemeConfig }) | null = null
+export const revalidate = 300 // 300s
 
 export function generateViewport(): Viewport {
   return {
@@ -44,14 +42,23 @@ export function generateViewport(): Viewport {
   }
 }
 
-export const generateMetadata = async () => {
+const key = 'root-data'
+const fetchAggregationData = cache(async () => {
   const queryClient = getQueryClient()
 
-  const fetchedData =
-    aggregationData ??
-    (await queryClient.fetchQuery(queries.aggregation.root()))
+  return onlyGetOrSetCacheInVercelButFallback(
+    key,
+    async () => {
+      attachUAAndRealIp()
 
-  aggregationData = fetchedData
+      return queryClient.fetchQuery(queries.aggregation.root())
+    },
+    revalidate,
+  )
+})
+export const generateMetadata = async () => {
+  const fetchedData = await fetchAggregationData()
+
   const {
     seo,
     url,
@@ -124,18 +131,11 @@ export const generateMetadata = async () => {
 }
 
 export default async function RootLayout(props: PropsWithChildren) {
-  attachUAAndRealIp()
   const { children } = props
 
-  const queryClient = getQueryClient()
-
-  const data = await queryClient.fetchQuery({
-    ...queries.aggregation.root(),
-  })
+  const data = await fetchAggregationData()
 
   const themeConfig = data.theme
-
-  aggregationData = data
 
   return (
     <ClerkProvider>
@@ -234,7 +234,6 @@ export default async function RootLayout(props: PropsWithChildren) {
             <ScrollTop />
           </body>
         </html>
-        <Analytics />
       </AppFeatureProvider>
     </ClerkProvider>
   )
