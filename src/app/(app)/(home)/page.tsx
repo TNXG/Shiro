@@ -205,7 +205,7 @@ const Welcome = () => {
           className={clsx(
             'absolute bottom-0 left-0 right-0 flex flex-col center',
 
-            'text-neutral-800/80 center dark:text-neutral-200/80',
+            'text-neutral-800/80 center dark:text-neutral-200/80 text-lg',
           )}
         >
           <small>
