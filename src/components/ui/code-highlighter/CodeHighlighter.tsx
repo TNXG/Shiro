@@ -3,9 +3,8 @@ import React, {
   useEffect,
   useInsertionEffect,
   useRef,
-  useLayoutEffect,
+  useState,
 } from 'react'
-import clsx from 'clsx'
 import type { FC } from 'react'
 
 import { useIsPrintMode } from '~/atoms/css-media'
@@ -32,54 +31,51 @@ interface Props {
 
 export const HighLighter: FC<Props> = (props) => {
   const { lang: language, content: value } = props
+
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(value)
-    toast.success('COPIED！已复制！')
+    toast.success('COPIED!')
   }, [value])
 
-  const isPrintMode = useIsPrintMode()
-  const isDark = useIsDark()
-
-  useLayoutEffect(() => {
-    ; (async () => {
-      const shikiTheme = 'dark-plus'
-      const html = await renderCodeHighlighter(
-        value,
-        language as string,
-        shikiTheme, // 始终使用 'dark_plus' 主题
-      )
-      if (!ref.current) {
-        return
-      }
-      ref.current.innerHTML = html
-    })()
-  }, [isDark, value, language, isPrintMode])
-
   const ref = useRef<HTMLElement>(null)
+  useLoadHighlighter(ref)
+
+  const codeBlockRef = useRef<HTMLPreElement>(null)
+
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [isOverflow, setIsOverflow] = useState(false)
+  useEffect(() => {
+    const $el = codeBlockRef.current
+    if (!$el) return
+
+    const windowHeight = getViewport().h
+    const halfWindowHeight = windowHeight / 2
+    const $elScrollHeight = $el.scrollHeight
+    if ($elScrollHeight >= halfWindowHeight) {
+      setIsOverflow(true)
+    } else {
+      setIsOverflow(false)
+    }
+  }, [value])
   return (
     <div className={styles['code-wrap']}>
       <span className={styles['language-tip']} aria-hidden>
         {language?.toUpperCase()}
       </span>
-
-      <pre
-        className="line-numbers !bg-transparent"
-        data-start="1"
-        style={{ fontFamily: 'JetBrainsMono' }}
-      >
-        <code
-          className={`language-${language ?? 'markup'} !bg-transparent`}
-          ref={ref}
+      <AutoResizeHeight className="relative">
+        <pre
+          className="line-numbers !bg-transparent"
+          data-start="1"
           style={{ fontFamily: 'JetBrainsMono' }}
         >
           <code
             className={`language-${language ?? 'markup'} !bg-transparent`}
             ref={ref}
+            style={{ fontFamily: 'JetBrainsMono' }}
           >
             {value}
           </code>
         </pre>
-
         {isOverflow && isCollapsed && (
           <div className="absolute bottom-0 left-0 right-0 flex justify-center bg-[linear-gradient(180deg,transparent_0%,#fff_81%)] py-2 dark:bg-[linear-gradient(180deg,transparent_0%,oklch(var(--b1)/1)_81%)]">
             <button
@@ -97,7 +93,7 @@ export const HighLighter: FC<Props> = (props) => {
       <div className={styles['copy-tip']} onClick={handleCopy} aria-hidden>
         Copy
       </div>
-    </div >
+    </div>
   )
 }
 export const BaseCodeHighlighter: Component<
