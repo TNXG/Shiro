@@ -4,6 +4,7 @@ import React, {
   useInsertionEffect,
   useRef,
   useState,
+  useLayoutEffect
 } from 'react'
 import type { FC } from 'react'
 
@@ -57,6 +58,25 @@ export const HighLighter: FC<Props> = (props) => {
       setIsOverflow(false)
     }
   }, [value])
+
+  const isPrintMode = useIsPrintMode()
+  const isDark = useIsDark()
+
+  useLayoutEffect(() => {
+    ; (async () => {
+      const shikiTheme = 'dark-plus'
+      const html = await renderCodeHighlighter(
+        value,
+        language as string,
+        shikiTheme, // 始终使用 'dark_plus' 主题
+      )
+      if (!ref.current) {
+        return
+      }
+      ref.current.innerHTML = html
+    })()
+  }, [isDark, value, language, isPrintMode])
+
   return (
     <div className={styles['code-wrap']}>
       <span className={styles['language-tip']} aria-hidden>
