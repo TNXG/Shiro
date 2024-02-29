@@ -3,14 +3,11 @@ import React, {
   useEffect,
   useInsertionEffect,
   useRef,
-  useState,
-  useLayoutEffect
+  useLayoutEffect,
 } from 'react'
 import type { FC } from 'react'
 
 import { useIsPrintMode } from '~/atoms/css-media'
-import { getViewport } from '~/atoms/hooks'
-import { AutoResizeHeight } from '~/components/modules/shared/AutoResizeHeight'
 import { useIsDark } from '~/hooks/common/use-is-dark'
 import { clsxm } from '~/lib/helper'
 import { loadScript, loadStyleSheet } from '~/lib/load-script'
@@ -32,31 +29,9 @@ interface Props {
 
 export const HighLighter: FC<Props> = (props) => {
   const { lang: language, content: value } = props
-
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(value)
-    toast.success('COPIED!')
-  }, [value])
-
-  const ref = useRef<HTMLElement>(null)
-  useLoadHighlighter(ref)
-
-  const codeBlockRef = useRef<HTMLPreElement>(null)
-
-  const [isCollapsed, setIsCollapsed] = useState(true)
-  const [isOverflow, setIsOverflow] = useState(false)
-  useEffect(() => {
-    const $el = codeBlockRef.current
-    if (!$el) return
-
-    const windowHeight = getViewport().h
-    const halfWindowHeight = windowHeight / 2
-    const $elScrollHeight = $el.scrollHeight
-    if ($elScrollHeight >= halfWindowHeight) {
-      setIsOverflow(true)
-    } else {
-      setIsOverflow(false)
-    }
+    toast.success('COPIED！已复制！')
   }, [value])
 
   const isPrintMode = useIsPrintMode()
@@ -77,38 +52,26 @@ export const HighLighter: FC<Props> = (props) => {
     })()
   }, [isDark, value, language, isPrintMode])
 
+  const ref = useRef<HTMLElement>(null)
   return (
     <div className={styles['code-wrap']}>
       <span className={styles['language-tip']} aria-hidden>
         {language?.toUpperCase()}
       </span>
-      <AutoResizeHeight className="relative">
-        <pre
-          className="line-numbers !bg-transparent"
-          data-start="1"
+
+      <pre
+        className="line-numbers !bg-transparent"
+        data-start="1"
+        style={{ fontFamily: 'JetBrainsMono' }}
+      >
+        <code
+          className={`language-${language ?? 'markup'} !bg-transparent`}
+          ref={ref}
           style={{ fontFamily: 'JetBrainsMono' }}
         >
-          <code
-            className={`language-${language ?? 'markup'} !bg-transparent`}
-            ref={ref}
-            style={{ fontFamily: 'JetBrainsMono' }}
-          >
-            {value}
-          </code>
-        </pre>
-        {isOverflow && isCollapsed && (
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center bg-[linear-gradient(180deg,transparent_0%,#fff_81%)] py-2 dark:bg-[linear-gradient(180deg,transparent_0%,oklch(var(--b1)/1)_81%)]">
-            <button
-              onClick={() => setIsCollapsed(false)}
-              aria-hidden
-              className="flex items-center justify-center text-xs"
-            >
-              <i className="icon-[mingcute--arrow-to-down-line]" />
-              <span className="ml-2">展开</span>
-            </button>
-          </div>
-        )}
-      </AutoResizeHeight>
+          {value}
+        </code>
+      </pre>
 
       <div className={styles['copy-tip']} onClick={handleCopy} aria-hidden>
         Copy
