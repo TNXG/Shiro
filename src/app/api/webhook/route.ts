@@ -7,9 +7,10 @@ import {
   readDataFromRequest,
 } from '@mx-space/webhook'
 
+import { CacheKeyMap } from '~/constants/keys'
+import { invalidateCache, invalidateCacheWithPrefix } from '~/lib/cache'
 import { NextServerResponse } from '~/lib/edge-function.server'
 
-// export const runtime = 'edge'
 export const POST = async (nextreq: NextRequest) => {
   const secret = process.env.WEBHOOK_SECRET
   const res = new NextServerResponse()
@@ -31,13 +32,33 @@ export const POST = async (nextreq: NextRequest) => {
     })
 
     switch (type) {
-      case 'health-check': {
+      case 'health_check': {
         return res.status(200).send('OK')
       }
       case BusinessEvents.NOTE_CREATE:
       case BusinessEvents.NOTE_DELETE:
       case BusinessEvents.NOTE_UPDATE: {
+        await Promise.all([invalidateCache(CacheKeyMap.AggregateTop)])
         return res.status(200).send('OK')
+      }
+      case BusinessEvents.POST_CREATE:
+      case BusinessEvents.POST_UPDATE:
+      case BusinessEvents.POST_DELETE: {
+        await Promise.all([
+          invalidateCacheWithPrefix(CacheKeyMap.PostList),
+          invalidateCache(CacheKeyMap.AggregateTop),
+        ])
+        return res.status(200).send('OK')
+      }
+      case BusinessEvents.PAGE_CREATE:
+      case BusinessEvents.PAGE_UPDATE:
+      case BusinessEvents.SAY_CREATE: {
+        await Promise.all([invalidateCache(CacheKeyMap.AggregateTop)])
+        return res.status(200).send('OK')
+      }
+
+      default: {
+        return res.status(200).send('MISS')
       }
     }
   } catch (err) {
