@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { cache } from 'react'
 import { ToastContainer } from 'react-toastify'
 import type { Viewport } from 'next'
@@ -118,7 +119,7 @@ export const generateMetadata = async () => {
       type: 'website',
       url: url.webUrl,
       images: {
-        url: user.avatar,
+        url: `${url.webUrl}/og`,
         username: user.name,
       },
     },

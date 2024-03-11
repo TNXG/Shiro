@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useInsertionEffect,
   useRef,
-  useLayoutEffect,
 } from 'react'
 import type { FC } from 'react'
 
@@ -27,7 +26,7 @@ interface Props {
   content: string
 }
 
-export const HighLighter: FC<Props> = (props) => {
+export const HighLighterPrismCdn: FC<Props> = (props) => {
   const { lang: language, content: value } = props
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(value)
@@ -53,21 +52,17 @@ export const HighLighter: FC<Props> = (props) => {
   }, [isDark, value, language, isPrintMode])
 
   const ref = useRef<HTMLElement>(null)
+  useLoadHighlighter(ref)
   return (
     <div className={styles['code-wrap']}>
       <span className={styles['language-tip']} aria-hidden>
         {language?.toUpperCase()}
       </span>
 
-      <pre
-        className="line-numbers !bg-transparent"
-        data-start="1"
-        style={{ fontFamily: 'JetBrainsMono' }}
-      >
+      <pre className="line-numbers !bg-transparent" data-start="1">
         <code
           className={`language-${language ?? 'markup'} !bg-transparent`}
           ref={ref}
-          style={{ fontFamily: 'JetBrainsMono' }}
         >
           {value}
         </code>
@@ -157,9 +152,6 @@ const useLoadHighlighter = (ref: React.RefObject<HTMLElement>) => {
           })
         } else {
           requestAnimationFrame(() => {
-            window.Prism?.highlightAll()
-            // highlightAll twice
-
             requestAnimationFrame(() => {
               window.Prism?.highlightAll()
             })
