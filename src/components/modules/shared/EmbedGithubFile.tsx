@@ -1,109 +1,116 @@
-import { Label } from '@radix-ui/react-label'
-import { useMemo, useRef } from 'react'
-import type { FC } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import React, { memo } from 'react'
 
-import { StyledButton } from '~/components/ui/button'
-import { CodeEditor } from '~/components/ui/code-editor'
-import { HighLighter } from '~/components/ui/code-highlighter'
-import { useModalStack } from '~/components/ui/modal'
-import { useEventCallback } from '~/hooks/common/use-event-callback'
-import { toast } from '~/lib/toast'
+import { HighLighter } from '../../ui/code-highlighter'
+import { Loading } from '../../ui/loading'
 
-type KeyValueString = string
-interface MetaKeyValueEditSectionProps {
-  keyValue: object | KeyValueString
-  onChange: (keyValue: object) => void
+const ext2FileType = {
+  '.js': 'javascript',
+  '.ts': 'typescript',
+  '.jsx': 'javascript',
+  '.tsx': 'typescript',
+  '.md': 'markdown',
+  '.css': 'css',
+  '.scss': 'scss',
+  '.html': 'html',
+  '.json': 'json',
+  '.yml': 'yaml',
+  '.yaml': 'yaml',
+  '.toml': 'toml',
+  '.xml': 'xml',
+  '.sh': 'bash',
+  '.bash': 'bash',
+  '.zsh': 'bash',
+  '.fish': 'bash',
+  '.ps1': 'powershell',
+  '.bat': 'batch',
+  '.cmd': 'batch',
+  '.go': 'go',
+  '.py': 'python',
+  '.rb': 'ruby',
+  '.java': 'java',
+  '.c': 'c',
+  '.cpp': 'cpp',
+  '.cs': 'csharp',
+  '.rs': 'rust',
+  '.swift': 'swift',
+  '.kt': 'kotlin',
+  '.clj': 'clojure',
+  '.lua': 'lua',
+  '.sql': 'sql',
+  '.graphql': 'graphql',
+  '.groovy': 'groovy',
+  '.scala': 'scala',
+  '.pl': 'perl',
+  '.r': 'r',
+  '.dart': 'dart',
+  '.elm': 'elm',
+  '.erl': 'erlang',
+  '.ex': 'elixir',
+  '.h': 'c',
+  '.hpp': 'cpp',
+  '.hxx': 'cpp',
+  '.hh': 'cpp',
+  '.h++': 'cpp',
+  '.m': 'objectivec',
+  '.mm': 'objectivec',
+  '.vue': 'vue',
 }
-
-const safeParse = (value: string) => {
-  try {
-    return JSON.parse(value)
-  } catch (e) {
-    return {}
-  }
-}
-
-const TAB_SIZE = 2
-
-export const MetaKeyValueEditSection: FC<MetaKeyValueEditSectionProps> = (
-  props,
-) => {
-  const { keyValue, onChange } = props
-  const objectValue = useMemo(
-    () => (typeof keyValue === 'string' ? safeParse(keyValue) : keyValue),
-    [keyValue],
-  )
-  const { present } = useModalStack()
-  const handlePresentModal = useEventCallback(() => {
-    present({
-      title: `编辑元信息`,
-      clickOutsideToDismiss: false,
-      content: ({ dismiss }) => (
-        <EditorModal
-          value={JSON.stringify(objectValue, null, TAB_SIZE)}
-          onChange={onChange}
-          dismiss={dismiss}
-        />
-      ),
+export const EmbedGithubFile = memo(
+  ({
+    owner,
+    path,
+    repo,
+    refType,
+  }: {
+    owner: string
+    repo: string
+    path: string
+    refType?: string
+  }) => {
+    const ext = path.slice(path.lastIndexOf('.'))
+    const fileType = (ext2FileType as any)[ext] || 'text'
+    const { data, isLoading, isError } = useQuery<string>({
+      queryKey: ['github-preview', owner, repo, path, refType],
+      queryFn: async () => {
+        return fetch(
+          `https://cdn.jsdelivr.net/gh/${owner}/${repo}${
+            refType ? `@${refType}` : ''
+          }/${path}`,
+        ).then(async (res) => {
+          return res.text()
+        })
+      },
     })
-  })
 
-  const jsonString = JSON.stringify(objectValue, null, TAB_SIZE)
-  return (
-    <div className="relative flex flex-col space-y-4">
-      <div className="flex items-center justify-between">
-        <Label>Meta</Label>
-
-        <StyledButton variant="secondary" onClick={handlePresentModal}>
-          编辑
-        </StyledButton>
-      </div>
-      <HighLighter key={jsonString} lang="json" content={jsonString} />
-    </div>
-  )
-}
-
-const isValidJSONString = (value: string) => {
-  try {
-    JSON.parse(value)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-const EditorModal: FC<{
-  value: string
-  dismiss: () => void
-  onChange: (value: object) => void
-}> = ({ value, onChange, dismiss }) => {
-  const currentEditValueRef = useRef(value)
-
-  const handleSave = () => {
-    if (!isValidJSONString(currentEditValueRef.current)) {
-      toast.error('JSON 格式错误，请检查后再试')
-      return
-    }
-    onChange(JSON.parse(currentEditValueRef.current) as Record<string, unknown>)
-
-    dismiss()
-  }
-
-  return (
-    <div className="relative flex w-full flex-grow flex-col lg:w-[600px]">
-      <div className="relative max-h-[450px] w-full overflow-auto">
-        <CodeEditor
-          minHeight="350px"
-          content={value}
-          language="json"
-          onChange={(value) => {
-            currentEditValueRef.current = value
-          }}
+    if (isLoading) {
+      return (
+        <Loading
+          className="h-[50vh]"
+          loadingText="Loading GitHub File Preview..."
         />
+      )
+    }
+
+    if (isError) {
+      return (
+        <pre className="flex h-[50vh] flex-wrap rounded-md border border-uk-orange-light center">
+          <code>Loading GitHub File Preview Failed:</code>
+          <br />
+          <code>
+            {owner}/{repo}/{path}
+          </code>
+        </pre>
+      )
+    }
+
+    if (!data) return null
+
+    return (
+      <div className="h-[50vh] w-full overflow-auto">
+        <HighLighter content={data} lang={fileType} />
       </div>
-      <div className="flex flex-shrink-0 justify-end p-2">
-        <StyledButton onClick={handleSave}>保存</StyledButton>
-      </div>
-    </div>
-  )
-}
+    )
+  },
+)
+EmbedGithubFile.displayName = 'EmbedGithubFile'
