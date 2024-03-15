@@ -88,42 +88,42 @@ body:not(.heimus_toggle_on) .heimus:hover .new {
 
 /* 字体 */
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/HarmonyOS_Sans.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/HarmonyOS_Sans.woff2") format('woff2');
     font-family: "HarmonyOS_Sans";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/ysbth.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/ysbth.woff2") format('woff2');
     font-family: "ysbth";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/CtrlAstr.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/CtrlAstr.woff2") format('woff2');
     font-family: "CtrlAstr";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/Gsenochian.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/Gsenochian.woff2") format('woff2');
     font-family: "Gsenochian";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/Tevyat.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/Tevyat.woff2") format('woff2');
     font-family: "Tevyat";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/JetBrainsMono.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/JetBrainsMono.woff2") format('woff2');
     font-family: "JetBrainsMono";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/AgeFonts001.woff") format('woff');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/AgeFonts001.woff") format('woff');
     font-family: "AgeFonts001";
 }
 
 @font-face {
-    src: url("https://assets.tnxg.whitenuo.cn/fonts/moonbridge.woff2") format('woff2');
+    src: url("https://cdn.tnxg.top/tnxg-r2/fonts/moonbridge.woff2") format('woff2');
     font-family: "moonbridge";
 }
 
@@ -160,23 +160,23 @@ body:not(.heimus_toggle_on) .heimus:hover .new {
 }
 
 body {
-    cursor: url("https://assets.tnxg.whitenuo.cn/images/cursor/cursor.png"), auto;
+    cursor: url("https://cdn.tnxg.top/tnxg-r2/images/cursor/cursor.png"), auto;
 }
 
 a {
-    cursor: url("https://assets.tnxg.whitenuo.cn/images/cursor/pointer.png"), auto;
+    cursor: url("https://cdn.tnxg.top/tnxg-r2/images/cursor/pointer.png"), auto;
 }
 
 a:hover {
-    cursor: url("https://assets.tnxg.whitenuo.cn/images/cursor/pointer.png"), auto;
+    cursor: url("https://cdn.tnxg.top/tnxg-r2/images/cursor/pointer.png"), auto;
 }
 
 .hty-icon-button {
-    cursor: url("https://assets.tnxg.whitenuo.cn/images/cursor/pointer.png"), pointer;
+    cursor: url("https://cdn.tnxg.top/tnxg-r2/images/cursor/pointer.png"), pointer;
 }
 
 input {
-    cursor: url("https://assets.tnxg.whitenuo.cn/images/cursor/pointer.png"), auto;
+    cursor: url("https://cdn.tnxg.top/tnxg-r2/images/cursor/pointer.png"), auto;
 }
 
 /* 关于Shiro的样式定制 */

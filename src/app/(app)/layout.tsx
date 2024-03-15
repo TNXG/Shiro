@@ -182,7 +182,7 @@ export default async function RootLayout(props: PropsWithChildren) {
                   console.error('[TNXG_SW] 安装失败，原因： 浏览器不支持service worker');
                 }
               } else {
-                fetch('https://assets.tnxg.whitenuo.cn/data/blog_error.html')
+                fetch('https://cdn.tnxg.top/tnxg-r2/data/blog_error.html')
                   .then(res => res.text())
                   .then(text => {
                     document.open()
