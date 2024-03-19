@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 
 import { ExcalidrawLoading } from '~/components/ui/excalidraw/ExcalidrawLoading'
+import { isClientSide } from '~/lib/env'
 
 import { BlockLoading } from './BlockLoading'
 
@@ -27,6 +28,8 @@ const ExcalidrawLazy = ({ data }: any) => {
     </Suspense>
   )
 }
+
+let shikiImport: ComponentType<any>
 export const CodeBlockRender = (props: {
   lang: string | undefined
   content: string
