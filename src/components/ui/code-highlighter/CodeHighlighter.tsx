@@ -13,7 +13,7 @@ import { clsxm } from '~/lib/helper'
 import { loadScript, loadStyleSheet } from '~/lib/load-script'
 import { toast } from '~/lib/toast'
 
-import styles from './CodeHighlighter.modle.css'
+import styles from './CodeHighlighter.module.css'
 import { renderCodeHighlighter } from './render.server'
 
 declare global {
