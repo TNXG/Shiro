@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 
 import { ExcalidrawLoading } from '~/components/ui/excalidraw/ExcalidrawLoading'
-import { isClientSide } from '~/lib/env'
+
 
 import { BlockLoading } from './BlockLoading'
 
