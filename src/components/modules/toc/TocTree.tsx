@@ -76,7 +76,12 @@ export const TocTree: Component<
   const toc: ITocItem[] = useMemo(() => {
     return Array.from($headings).map((el, idx) => {
       const depth = +el.tagName.slice(1)
-      const title = el.textContent || ''
+      const elClone = el.cloneNode(true) as HTMLElement
+      elClone.querySelectorAll('del').forEach((del) => {
+        del.remove()
+      })
+
+      const title = elClone.textContent || ''
 
       const index = idx
 
@@ -134,7 +139,7 @@ export const TocTree: Component<
   return (
     <ul
       className={clsxm(
-        'flex flex-grow flex-col px-2 scrollbar-none',
+        'flex grow flex-col px-2 scrollbar-none',
         className,
       )}
       ref={containerRef}
@@ -156,7 +161,7 @@ export const TocTree: Component<
         })}
       </ul>
       {accessoryElement && (
-        <li className="flex-shrink-0">
+        <li className="shrink-0">
           {!!toc.length && <Divider />}
           {accessoryElement}
         </li>
@@ -217,7 +222,7 @@ const MemoedItem = memo<{
         <m.span
           layoutId="active-toc-item"
           layout
-          className="absolute bottom-[3px] left-0 top-[3px] w-[2px] rounded-sm bg-accent"
+          className="absolute inset-y-[3px] left-0 w-[2px] rounded-sm bg-accent"
         />
       )}
       <TocItem

@@ -1,3 +1,5 @@
+/* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
+/* eslint-disable tailwindcss/no-unnecessary-arbitrary-value */
 import * as ScrollAreaBase from '@radix-ui/react-scroll-area'
 import * as React from 'react'
 
@@ -61,24 +63,12 @@ Scrollbar.displayName = 'ScrollArea.Scrollbar'
 
 export const Viewport = React.forwardRef<
   React.ElementRef<typeof ScrollAreaBase.Viewport>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaBase.Viewport> & {
-    onScrollToBottom?: () => void
-  }
->(({ className, onScrollToBottom, onScroll, ...rest }, forwardedRef) => (
+  React.ComponentPropsWithoutRef<typeof ScrollAreaBase.Viewport>
+>(({ className, ...rest }, forwardedRef) => (
   <ScrollAreaBase.Viewport
     {...rest}
     ref={forwardedRef}
-    asChild
-    className={clsxm('block h-full w-full', className)}
-    onScroll={(event) => {
-      const { clientHeight, scrollHeight, scrollTop } = event.target as Element
-
-      if (scrollHeight - scrollTop === clientHeight) {
-        onScrollToBottom?.()
-      }
-
-      onScroll?.(event)
-    }}
+    className={clsxm('block size-full', className)}
   />
 ))
 Viewport.displayName = 'ScrollArea.Viewport'
