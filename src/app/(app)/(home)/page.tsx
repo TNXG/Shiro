@@ -27,7 +27,7 @@ import { isDev } from '~/lib/env'
 import { clsxm } from '~/lib/helper'
 import { shuffle } from '~/lib/lodash'
 import { noopObj } from '~/lib/noop'
-import { apiClient } from '~/lib/request.new'
+import { apiClient } from '~/lib/request'
 import { routeBuilder, Routes } from '~/lib/route-builder'
 import {
   useAggregationSelector,
@@ -164,7 +164,7 @@ const Hero = () => {
             <span className="opacity-80">{description}</span>
           </BottomToUpTransitionView>
 
-          <ul className="mt-8 flex flex-wrap gap-4 center lg:mt-28 lg:justify-start">
+          <ul className="mx-[60px] mt-8 flex flex-wrap gap-4 center lg:mx-auto lg:mt-28 lg:justify-start">
             {Object.entries(socialIds || noopObj).map(
               ([type, id]: any, index) => {
                 if (!isSupportIcon(type)) return null
@@ -221,6 +221,7 @@ const Hero = () => {
 const PostScreen = () => {
   const { posts } = useHomeQueryData()
 
+  if (posts.length <= 0) return null
   return (
     <Screen className="h-fit min-h-[120vh]">
       <TwoColumnLayout leftContainerClassName="h-[30rem] lg:h-1/2">
@@ -488,6 +489,9 @@ const FriendScreen = () => {
     }, []),
     staleTime: 1000 * 60 * 10,
   })
+
+  if (!data || data?.length <= 0) return null
+
   return (
     <Screen className="flex h-auto min-h-screen center">
       <div className="flex min-w-0 flex-col">

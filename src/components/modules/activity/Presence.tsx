@@ -26,6 +26,7 @@ import {
   useOwner,
   useSocketSessionId,
 } from '~/atoms/hooks'
+import { getServerTime } from '~/components/common/SyncServerTime'
 import { FloatPopover } from '~/components/ui/float-popover'
 import { RootPortal } from '~/components/ui/portal'
 import { EmitKeyMap } from '~/constants/keys'
@@ -36,12 +37,7 @@ import { useReadPercent } from '~/hooks/shared/use-read-percent'
 import { getColorScheme, stringToHue } from '~/lib/color'
 import { formatSeconds } from '~/lib/datetime'
 import { debounce, uniq } from '~/lib/lodash'
-import { apiClient } from '~/lib/request.new'
-import { springScrollTo } from '~/lib/scroller'
-import {
-  useWrappedElementPosition,
-  useWrappedElementSize,
-} from '~/providers/shared/WrappedElementProvider'
+import { apiClient } from '~/lib/request'
 import { queries } from '~/queries/definition'
 import { socketClient } from '~/socket'
 
@@ -49,16 +45,14 @@ import { commentStoragePrefix } from '../comment/CommentBox/providers'
 import { useRoomContext } from './Room'
 
 export const Presence = () => {
-  const isMobile = useIsMobile()
-
   const isClient = useIsClient()
 
-  return isMobile ? null : isClient ? <PresenceImpl /> : null
+  return isClient ? <PresenceImpl /> : null
 }
 
 const PresenceImpl = () => {
   const { roomName } = useRoomContext()
-
+  const isMobile = useIsMobile()
   const { refetch } = useQuery({
     ...queries.activity.presence(roomName),
 
@@ -98,6 +92,7 @@ const PresenceImpl = () => {
         sid,
         roomName,
         displayName: displayName || void 0,
+        ts: getServerTime().getTime() || Date.now(),
       })
     }, 1000),
     [identity, displayName],
@@ -123,6 +118,8 @@ const PresenceImpl = () => {
     update(percent)
   }, [percent, update])
 
+  if (isMobile) return null
+
   return <ReadPresenceTimeline />
 }
 
@@ -132,10 +129,14 @@ const ReadPresenceTimeline = () => {
   const { roomName } = useRoomContext()
   const activityPresenceIdsCurrentRoom = useActivityPresenceByRoomName(roomName)
 
+  const uniqueActivityPresenceIdsCurrentRoom = uniq(
+    activityPresenceIdsCurrentRoom,
+  )
+  if (uniqueActivityPresenceIdsCurrentRoom.length < 2) return null
   return (
     <RootPortal>
       <div className="group fixed inset-y-20 left-0 z-[3] w-8">
-        {uniq(activityPresenceIdsCurrentRoom).map((identity) => {
+        {uniqueActivityPresenceIdsCurrentRoom.map((identity) => {
           return (
             <TimelineItem
               key={identity}
@@ -170,12 +171,13 @@ const TimelineItem: FC<TimelineItemProps> = memo(({ type, identity }) => {
       isDark ? 'dark' : 'light'
     ].accent
   }, [isDark, presence, type])
-  if (!presence && isCurrent) return null
+  if (!presence) return null
 
   if (typeof position !== 'number') return null
-  const readingDuration = presence
-    ? formatSeconds((presence.operationTime - presence.joinedAt) / 1000)
-    : ''
+  const readingDuration =
+    presence && presence.operationTime - presence.joinedAt > 0
+      ? formatSeconds((presence.operationTime - presence.joinedAt) / 1000)
+      : ''
 
   return (
     <FloatPopover
@@ -212,14 +214,14 @@ const TimelineItem: FC<TimelineItemProps> = memo(({ type, identity }) => {
 TimelineItem.displayName = 'TimelineItem'
 
 const MoitonBar = forwardRef<
-  HTMLButtonElement,
+  HTMLDivElement,
   {
     position: number
     bgColor: string
     isCurrent: boolean
   }
 >(({ bgColor, isCurrent, position, ...rest }, ref) => {
-  const elRef = useRef<HTMLButtonElement>(null)
+  const elRef = useRef<HTMLDivElement>(null)
 
   const [memoedPosition] = useState(position)
   useLayoutEffect(() => {
@@ -254,17 +256,10 @@ const MoitonBar = forwardRef<
       },
     )
   }, [isCurrent, position])
-  const { y } = useWrappedElementPosition()
-  const { h } = useWrappedElementSize()
 
   useImperativeHandle(ref, () => elRef.current!)
   return (
-    <button
-      onClick={() => {
-        // read percent calc:  Math.floor(Math.min(Math.max(0, ((scrollTop - y) / h) * 100), 100)) || 0
-        // so the reversal is
-        springScrollTo(y + (position / 100) * h)
-      }}
+    <div
       aria-label={isCurrent ? '你在这里' : `读者在这里 - ${position}%`}
       ref={elRef}
       className={clsx(

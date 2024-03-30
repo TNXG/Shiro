@@ -72,8 +72,8 @@ dependencies:
     specifier: 7.3.5
     version: 7.3.5(@milkdown/core@7.3.5)(@milkdown/ctx@7.3.5)(@milkdown/prose@7.3.5)(@milkdown/transformer@7.3.5)
   '@mx-space/api-client':
-    specifier: 1.8.1-alpha.0
-    version: 1.8.1-alpha.0
+    specifier: 1.8.1
+    version: 1.8.1
   '@prosemirror-adapter/react':
     specifier: 0.2.6
     version: 0.2.6(react-dom@18.2.0)(react@18.2.0)
@@ -119,9 +119,6 @@ dependencies:
   '@vercel/postgres':
     specifier: 0.7.2
     version: 0.7.2
-  axios:
-    specifier: 1.6.8
-    version: 1.6.8
   bypass-vue-devtools:
     specifier: 0.0.6
     version: 0.0.6
@@ -200,6 +197,9 @@ dependencies:
   next:
     specifier: 14.1.4
     version: 14.1.4(@babel/core@7.24.3)(react-dom@18.2.0)(react@18.2.0)
+  next-runtime-env:
+    specifier: 3.2.1
+    version: 3.2.1(next@14.1.4)(react@18.2.0)
   next-themes:
     specifier: 0.2.1
     version: 0.2.1(next@14.1.4)(react-dom@18.2.0)(react@18.2.0)
@@ -236,9 +236,6 @@ dependencies:
   react-tweet:
     specifier: 3.2.0
     version: 3.2.0(react-dom@18.2.0)(react@18.2.0)
-  react-wrap-balancer:
-    specifier: 1.1.0
-    version: 1.1.0(react@18.2.0)
   remark-directive:
     specifier: 3.0.0
     version: 3.0.0
@@ -361,6 +358,9 @@ devDependencies:
   postcss-import:
     specifier: 16.1.0
     version: 16.1.0(postcss@8.4.38)
+  postcss-js:
+    specifier: 4.0.1
+    version: 4.0.1(postcss@8.4.38)
   postcss-nested:
     specifier: 6.0.1
     version: 6.0.1(postcss@8.4.38)
@@ -2265,8 +2265,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@mx-space/api-client@1.8.1-alpha.0:
-    resolution: {integrity: sha512-eRGd9IDAVxrS9i4GN4+XZTD20jsjp1otXIO7ZywHEcWH+qfPp04yHzyWQsyAjipIHd4tX3mdFHF2KCjOcmIuow==}
+  /@mx-space/api-client@1.8.1:
+    resolution: {integrity: sha512-Y3c9UtQuvtNMjb8oPvOoC4w7tc+0DNEZpfKs4zJU3l1HPNxANr4/lDtXDqpF/SCe4WBLtToZYx5cfNydayxJLA==}
     dev: false
 
   /@mx-space/webhook@0.3.0:
@@ -7845,6 +7845,16 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
+  /next-runtime-env@3.2.1(next@14.1.4)(react@18.2.0):
+    resolution: {integrity: sha512-vyuTpUMwnGUA9GjOGXNnuosqFQOa52IcKmu4mnTaQi4EqeFoCy3aYUxSF6mLaKkQ5yNC8yLa/gFjny74czpc9Q==}
+    peerDependencies:
+      next: ^14
+      react: ^18
+    dependencies:
+      next: 14.1.4(@babel/core@7.24.3)(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+    dev: false
+
   /next-themes@0.2.1(next@14.1.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
     peerDependencies:
@@ -9045,14 +9055,6 @@ packages:
       react: ^16.6.3 || ^17.0.0
     dependencies:
       '@reach/observe-rect': 1.2.0
-      react: 18.2.0
-    dev: false
-
-  /react-wrap-balancer@1.1.0(react@18.2.0):
-    resolution: {integrity: sha512-EhF3jOZm5Fjx+Cx41e423qOv2c2aOvXAtym2OHqrGeMUnwERIyNsRBgnfT3plB170JmuYvts8K2KSPEIerKr5A==}
-    peerDependencies:
-      react: '>=16.8.0 || ^17.0.0 || ^18'
-    dependencies:
       react: 18.2.0
     dev: false
 

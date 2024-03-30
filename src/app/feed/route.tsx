@@ -15,10 +15,9 @@ import { InsertRule } from '~/components/ui/markdown/parsers/ins'
 import { MarkRule } from '~/components/ui/markdown/parsers/mark'
 import { MentionRule } from '~/components/ui/markdown/parsers/mention'
 import { SpoilerRule } from '~/components/ui/markdown/parsers/spoiler'
-import { escapeXml } from '~/lib/helper.server'
-import { apiClient } from '~/lib/request.new'
+import { apiClient } from '~/lib/request'
 
-// export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic'
 export const revalidate = 86400 // 1 day
 
 interface RSSProps {
@@ -74,7 +73,7 @@ export async function GET() {
       date: item.created!,
       description: `<blockquote>该渲染由 Shiro API 生成，可能存在排版问题，最佳体验请前往：<a href='${xss(
         item.link,
-      )}'>${escapeXml(xss(item.link))}</a></blockquote>
+      )}'>${xss(item.link)}</a></blockquote>
 ${ReactDOM.renderToString(
   <div>
     {compiler(item.text, {

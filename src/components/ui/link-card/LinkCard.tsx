@@ -18,7 +18,7 @@ import { preventDefault } from '~/lib/dom'
 import { fetchGitHubApi } from '~/lib/github'
 import { clsxm } from '~/lib/helper'
 import { getDominantColor } from '~/lib/image'
-import { apiClient } from '~/lib/request.new'
+import { apiClient } from '~/lib/request'
 import { useFeatureEnabled } from '~/providers/root/app-feature-provider'
 
 import { LinkCardSource } from './enums'
@@ -35,10 +35,11 @@ export interface LinkCardProps {
 export const LinkCard = (props: LinkCardProps) => {
   const isClient = useIsClientTransition()
 
-  if (!isClient) return null
+  const placeholder = <LinkCardSkeleton />
+  if (!isClient) return placeholder
 
   return (
-    <LazyLoad placeholder={<LinkCardSkeleton />}>
+    <LazyLoad placeholder={placeholder}>
       <LinkCardImpl {...props} />
     </LazyLoad>
   )

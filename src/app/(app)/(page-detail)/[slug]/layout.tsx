@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import React from 'react'
 import type { Metadata } from 'next'
 
@@ -11,7 +12,7 @@ import { TocFAB } from '~/components/modules/toc/TocFAB'
 import { BottomToUpSoftScaleTransitionView } from '~/components/ui/transition/BottomToUpSoftScaleTransitionView'
 import { BottomToUpTransitionView } from '~/components/ui/transition/BottomToUpTransitionView'
 import { OnlyMobile } from '~/components/ui/viewport/OnlyMobile'
-import { attachUAAndRealIp } from '~/lib/attach-ua.new'
+import { attachUAAndRealIp } from '~/lib/attach-ua'
 import { getOgUrl } from '~/lib/helper.server'
 import { getSummaryFromMd } from '~/lib/markdown'
 import { getQueryClient } from '~/lib/query-client.server'
@@ -29,6 +30,7 @@ import {
   PageTitle,
 } from './pageExtra'
 
+export const dynamic = 'force-dynamic'
 const getData = async (params: PageParams) => {
   attachUAAndRealIp()
   const data = await getQueryClient()

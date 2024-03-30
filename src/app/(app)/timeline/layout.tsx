@@ -7,14 +7,14 @@ import { TimelineType } from '@mx-space/api-client'
 import { QueryHydrate } from '~/components/common/QueryHydrate'
 import { SearchFAB } from '~/components/modules/shared/SearchFAB'
 import { REQUEST_QUERY } from '~/constants/system'
-import { attachUAAndRealIp } from '~/lib/attach-ua.new'
+import { attachUAAndRealIp } from '~/lib/attach-ua'
 import { getQueryClient } from '~/lib/query-client.server'
-import { apiClient } from '~/lib/request.new'
+import { apiClient } from '~/lib/request'
 
 export const metadata = {
   title: '时间线',
 }
-
+export const dynamic = 'force-dynamic'
 export default async (props: PropsWithChildren) => {
   attachUAAndRealIp()
   const header = headers()

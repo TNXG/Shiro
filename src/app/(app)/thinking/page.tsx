@@ -29,7 +29,7 @@ import { RelativeTime } from '~/components/ui/relative-time'
 import { usePrevious } from '~/hooks/common/use-previous'
 import { preventDefault } from '~/lib/dom'
 import { sample } from '~/lib/lodash'
-import { apiClient } from '~/lib/request.new'
+import { apiClient } from '~/lib/request'
 import { toast } from '~/lib/toast'
 import { urlBuilder } from '~/lib/url-builder'
 import { useAggregationSelector } from '~/providers/root/aggregation-data-provider'
@@ -209,7 +209,13 @@ const List = () => {
                   </span>
                 </div>
 
-                <div className="my-4 leading-relaxed">
+                <div
+                  className={clsx(
+                    'relative inline-block rounded-xl px-2 py-1 text-zinc-800 dark:text-zinc-200',
+                    'rounded-tl-sm bg-zinc-600/5 dark:bg-zinc-500/20',
+                    'max-w-[calc(100%-3rem)]',
+                  )}
+                >
                   <Markdown allowsScript>{item.content}</Markdown>
 
                   {!!item.ref && (

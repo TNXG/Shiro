@@ -29,7 +29,7 @@
 
 ## :wrench: 技术栈
 
-- NextJS 13 (App Router)
+- NextJS (App Router)
 - Jotai
 - Framer motion
 - Radix UI
@@ -71,30 +71,31 @@
 
 [看这里](https://mx-space.js.org/themes/shiro).
 
-## :whale: Docker 部署
+## :whale: 运行
 
-### :books: docker-compose
+### :hammer: 通过预构建运行
 
-1. change the args inside `docker-compose.yml`
+首先在 `https://github.com/Innei/Shiro/releases` 中下载预构建好的 `release.zip`。然后解压它。
 
-2. run command
-
-```bash
-    docker-compose up -d
+```sh
+cd standalone
+vim .env # 修改你的 ENV 变量
+export PORT=2323
+node server.js
 ```
 
-### :package: docker run
+### :books: 推荐使用 Docker Compose
 
-```bash
-docker build \
- --build-arg BASE_URL=REPLACE_WITH_YOUR_BASE_URL \
- --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=REPLACE_WITH_YOUR_PUBLISHABLE_KEY \
- --build-arg CLERK_SECRET_KEY=REPLACE_WITH_YOUR_SECRET_KEY \
- -t shiro . --load
-```
+```sh
+mkdir shiro
+cd shiro
+wget https://raw.githubusercontent.com/Innei/Shiro/main/docker-compose.yml
+wget https://raw.githubusercontent.com/Innei/Shiro/main/.env.template .env
 
-```bash
-docker run --name shiro -d -p 2323:2323 shiro
+vim .env # 修改你的 ENV 变量
+docker compose up -d
+
+docker compose pull # 后续更新镜像
 ```
 
 ## Markdown 扩展语法
@@ -103,9 +104,9 @@ docker run --name shiro -d -p 2323:2323 shiro
 
 ## :heart: 鸣谢 & 许可
 
-2023 © Innei，本项目采用 AGPL-3.0 许可证发布。
+2023 © Innei，本软件遵循 AGPLv3 许可证，附加特定的商业使用条件。此外，使用本项目还需要遵循[附加条款和条件](ADDITIONAL_TERMS.md)。
 
-部分代码由 GPT-4 和 [cali.so](https://github.com/CaliCastle/cali.so) 提供。
+部分代码参考自 GPT-4 和 [cali.so](https://github.com/CaliCastle/cali.so)。
 
 感谢 Mix Space Team 和广大社区朋友们的贡献。
 
